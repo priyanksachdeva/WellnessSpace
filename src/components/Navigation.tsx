@@ -1,30 +1,39 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Heart, MessageCircle, Calendar, BookOpen, Users } from "lucide-react";
+import { Menu, X, Heart, MessageCircle, Calendar, BookOpen, Users, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/30">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center breathing">
               <Heart className="w-5 h-5 text-white" />
             </div>
             <span className="font-heading font-semibold text-xl text-foreground">
               WellnessSpace
             </span>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#chat" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            <Link to="/chat" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
               <MessageCircle className="w-4 h-4" />
               <span>AI Support</span>
-            </a>
+            </Link>
             <a href="#counseling" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
               <Calendar className="w-4 h-4" />
               <span>Counseling</span>
@@ -41,12 +50,30 @@ const Navigation = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" className="text-muted-foreground hover:text-primary">
-              Sign In
-            </Button>
-            <Button variant="default" className="bg-gradient-hero hover:opacity-90 shadow-soft">
-              Get Started
-            </Button>
+            {user ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  Welcome back!
+                </span>
+                <Button variant="ghost" onClick={handleSignOut} className="text-muted-foreground hover:text-primary">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" className="text-muted-foreground hover:text-primary">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button variant="default" className="bg-gradient-hero hover:opacity-90 shadow-soft">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -63,9 +90,9 @@ const Navigation = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden py-4 space-y-2 animate-fade-in">
-            <a href="#chat" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/chat" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
               AI Support
-            </a>
+            </Link>
             <a href="#counseling" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
               Counseling
             </a>
@@ -77,12 +104,25 @@ const Navigation = () => {
             </a>
             <hr className="border-border/50" />
             <div className="px-3 py-2 space-y-2">
-              <Button variant="ghost" className="w-full justify-start">
-                Sign In
-              </Button>
-              <Button variant="default" className="w-full bg-gradient-hero hover:opacity-90">
-                Get Started
-              </Button>
+              {user ? (
+                <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Link to="/auth">
+                    <Button variant="ghost" className="w-full justify-start">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button variant="default" className="w-full bg-gradient-hero hover:opacity-90">
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Clock, Users } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Hero = () => {
+  const { user } = useAuth();
+
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-wellness pt-16">
       <div className="container mx-auto px-4 py-20">
@@ -22,13 +26,27 @@ const Hero = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button 
-                size="lg" 
-                className="bg-gradient-hero hover:opacity-90 shadow-soft px-8 py-4 text-lg font-medium"
-              >
-                Get Support Now
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              {user ? (
+                <Link to="/chat">
+                  <Button 
+                    size="lg" 
+                    className="bg-gradient-hero hover:opacity-90 shadow-soft px-8 py-4 text-lg font-medium"
+                  >
+                    Continue to Chat
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/auth">
+                  <Button 
+                    size="lg" 
+                    className="bg-gradient-hero hover:opacity-90 shadow-soft px-8 py-4 text-lg font-medium"
+                  >
+                    Get Support Now
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
+              )}
               <Button 
                 size="lg" 
                 variant="outline" 
