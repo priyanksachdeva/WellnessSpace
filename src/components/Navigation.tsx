@@ -34,18 +34,18 @@ const Navigation = () => {
               <MessageCircle className="w-4 h-4" />
               <span>AI Support</span>
             </Link>
-            <a href="#counseling" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            <Link to="/counseling" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
               <Calendar className="w-4 h-4" />
               <span>Counseling</span>
-            </a>
-            <a href="#resources" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            </Link>
+            <Link to="/resources" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
               <BookOpen className="w-4 h-4" />
               <span>Resources</span>
-            </a>
-            <a href="#community" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            </Link>
+            <Link to="/community" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
               <Users className="w-4 h-4" />
               <span>Community</span>
-            </a>
+            </Link>
           </div>
 
           {/* CTA Buttons */}
@@ -93,15 +93,15 @@ const Navigation = () => {
             <Link to="/chat" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
               AI Support
             </Link>
-            <a href="#counseling" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/counseling" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
               Counseling
-            </a>
-            <a href="#resources" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            </Link>
+            <Link to="/resources" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
               Resources
-            </a>
-            <a href="#community" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            </Link>
+            <Link to="/community" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
               Community
-            </a>
+            </Link>
             <hr className="border-border/50" />
             <div className="px-3 py-2 space-y-2">
               {user ? (
