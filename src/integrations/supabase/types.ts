@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          appointment_date: string
+          counselor_id: string
+          created_at: string
+          duration_minutes: number
+          id: string
+          is_anonymous: boolean
+          notes: string | null
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_date: string
+          counselor_id: string
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_anonymous?: boolean
+          notes?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_date?: string
+          counselor_id?: string
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_anonymous?: boolean
+          notes?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_counselor_id_fkey"
+            columns: ["counselor_id"]
+            isOneToOne: false
+            referencedRelation: "counselors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           created_at: string
@@ -70,6 +120,163 @@ export type Database = {
           },
         ]
       }
+      community_posts: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          is_moderated: boolean
+          moderated_by: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          is_moderated?: boolean
+          moderated_by?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          is_moderated?: boolean
+          moderated_by?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_moderated_by_fkey"
+            columns: ["moderated_by"]
+            isOneToOne: false
+            referencedRelation: "peer_moderators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_replies: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_replies_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      counselors: {
+        Row: {
+          availability_schedule: Json
+          bio: string | null
+          contact_method: string
+          created_at: string
+          experience_years: number
+          id: string
+          is_active: boolean
+          languages: string[]
+          name: string
+          qualifications: string | null
+          rating: number | null
+          specialties: string[]
+          updated_at: string
+        }
+        Insert: {
+          availability_schedule?: Json
+          bio?: string | null
+          contact_method?: string
+          created_at?: string
+          experience_years?: number
+          id?: string
+          is_active?: boolean
+          languages?: string[]
+          name: string
+          qualifications?: string | null
+          rating?: number | null
+          specialties?: string[]
+          updated_at?: string
+        }
+        Update: {
+          availability_schedule?: Json
+          bio?: string | null
+          contact_method?: string
+          created_at?: string
+          experience_years?: number
+          id?: string
+          is_active?: boolean
+          languages?: string[]
+          name?: string
+          qualifications?: string | null
+          rating?: number | null
+          specialties?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      peer_moderators: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          specializations: string[]
+          training_completed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          specializations?: string[]
+          training_completed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          specializations?: string[]
+          training_completed_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -102,6 +309,39 @@ export type Database = {
           is_anonymous?: boolean | null
           preferred_contact_method?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      psychological_assessments: {
+        Row: {
+          assessment_type: string
+          completed_at: string
+          id: string
+          recommendations: string | null
+          responses: Json
+          score: number | null
+          severity_level: string | null
+          user_id: string
+        }
+        Insert: {
+          assessment_type: string
+          completed_at?: string
+          id?: string
+          recommendations?: string | null
+          responses: Json
+          score?: number | null
+          severity_level?: string | null
+          user_id: string
+        }
+        Update: {
+          assessment_type?: string
+          completed_at?: string
+          id?: string
+          recommendations?: string | null
+          responses?: Json
+          score?: number | null
+          severity_level?: string | null
           user_id?: string
         }
         Relationships: []

@@ -9,6 +9,8 @@ import ChatInterface from "./pages/ChatInterface";
 import CounselingPage from "./pages/CounselingPage";
 import ResourcesPage from "./pages/ResourcesPage";
 import CommunityPage from "./pages/CommunityPage";
+import AdminDashboard from "./pages/AdminDashboard";
+import AssessmentPage from "./pages/AssessmentPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
           <Route path="/counseling" element={<CounselingPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/community" element={<CommunityPage />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/assessment" element={<AssessmentPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

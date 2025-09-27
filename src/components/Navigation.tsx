@@ -34,6 +34,10 @@ const Navigation = () => {
               <MessageCircle className="w-4 h-4" />
               <span>AI Support</span>
             </Link>
+            <Link to="/assessment" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+              <BookOpen className="w-4 h-4" />
+              <span>Assessment</span>
+            </Link>
             <Link to="/counseling" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
               <Calendar className="w-4 h-4" />
               <span>Counseling</span>
@@ -92,6 +96,9 @@ const Navigation = () => {
           <div className="md:hidden py-4 space-y-2 animate-fade-in">
             <Link to="/chat" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
               AI Support
+            </Link>
+            <Link to="/assessment" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+              Assessment
             </Link>
             <Link to="/counseling" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
               Counseling
