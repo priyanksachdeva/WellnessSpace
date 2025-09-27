@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Heart, MessageCircle, Calendar, BookOpen, Users, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  Heart,
+  MessageCircle,
+  Calendar,
+  BookOpen,
+  Users,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,23 +40,38 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/chat" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            <Link
+              to="/chat"
+              className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2"
+            >
               <MessageCircle className="w-4 h-4" />
               <span>AI Support</span>
             </Link>
-            <Link to="/assessment" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            <Link
+              to="/assessment"
+              className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2"
+            >
               <BookOpen className="w-4 h-4" />
               <span>Assessment</span>
             </Link>
-            <Link to="/counseling" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            <Link
+              to="/counseling"
+              className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2"
+            >
               <Calendar className="w-4 h-4" />
               <span>Counseling</span>
             </Link>
-            <Link to="/resources" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            <Link
+              to="/resources"
+              className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2"
+            >
               <BookOpen className="w-4 h-4" />
               <span>Resources</span>
             </Link>
-            <Link to="/community" className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2">
+            <Link
+              to="/community"
+              className="text-muted-foreground hover:text-primary transition-colors flex items-center space-x-2"
+            >
               <Users className="w-4 h-4" />
               <span>Community</span>
             </Link>
@@ -56,10 +81,15 @@ const Navigation = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
+                <NotificationBell />
                 <span className="text-sm text-muted-foreground">
                   Welcome back!
                 </span>
-                <Button variant="ghost" onClick={handleSignOut} className="text-muted-foreground hover:text-primary">
+                <Button
+                  variant="ghost"
+                  onClick={handleSignOut}
+                  className="text-muted-foreground hover:text-primary"
+                >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
                 </Button>
@@ -67,12 +97,18 @@ const Navigation = () => {
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" className="text-muted-foreground hover:text-primary">
+                  <Button
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-primary"
+                  >
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button variant="default" className="bg-gradient-hero hover:opacity-90 shadow-soft">
+                  <Button
+                    variant="default"
+                    className="bg-gradient-hero hover:opacity-90 shadow-soft"
+                  >
                     Get Started
                   </Button>
                 </Link>
@@ -94,25 +130,44 @@ const Navigation = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden py-4 space-y-2 animate-fade-in">
-            <Link to="/chat" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            <Link
+              to="/chat"
+              className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors"
+            >
               AI Support
             </Link>
-            <Link to="/assessment" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            <Link
+              to="/assessment"
+              className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors"
+            >
               Assessment
             </Link>
-            <Link to="/counseling" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            <Link
+              to="/counseling"
+              className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors"
+            >
               Counseling
             </Link>
-            <Link to="/resources" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            <Link
+              to="/resources"
+              className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors"
+            >
               Resources
             </Link>
-            <Link to="/community" className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors">
+            <Link
+              to="/community"
+              className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors"
+            >
               Community
             </Link>
             <hr className="border-border/50" />
             <div className="px-3 py-2 space-y-2">
               {user ? (
-                <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start">
+                <Button
+                  variant="ghost"
+                  onClick={handleSignOut}
+                  className="w-full justify-start"
+                >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
                 </Button>
@@ -124,7 +179,10 @@ const Navigation = () => {
                     </Button>
                   </Link>
                   <Link to="/auth">
-                    <Button variant="default" className="w-full bg-gradient-hero hover:opacity-90">
+                    <Button
+                      variant="default"
+                      className="w-full bg-gradient-hero hover:opacity-90"
+                    >
                       Get Started
                     </Button>
                   </Link>

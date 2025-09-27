@@ -6,9 +6,24 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { detectCrisisKeywords, type CrisisLevel } from "@/lib/crisisKeywords";
 import { validateChatMessage } from "@/lib/validation";
 import { CrisisAlert, useCrisisAlert } from "@/components/crisis-alert";
+import { INDIAN_STUDENT_CRISIS_CONTACTS } from "@/lib/constants";
+
+interface CrisisAnalysisResult {
+  riskLevel: "low" | "medium" | "high" | "crisis";
+  confidenceScore: number;
+  detectedConcerns: string[];
+  suggestedActions: string[];
+  emotionalIndicators: {
+    distress: number;
+    hopelessness: number;
+    isolation: number;
+    urgency: number;
+  };
+  requiresIntervention: boolean;
+  recommendedResources: string[];
+}
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import {
   MessageCircle,
@@ -54,13 +69,16 @@ const ChatInterface = () => {
   const { toast } = useToast();
   const { activeAlert, showAlert, dismissAlert } = useCrisisAlert();
 
-  // Quick response suggestions for mental health
+  // Quick response suggestions for Indian students
   const quickResponses = [
-    "I'm feeling anxious",
-    "I'm stressed about studies",
-    "I'm feeling lonely",
-    "I need someone to talk to",
-    "Help me with coping strategies",
+    "I'm stressed about board exams",
+    "Family pressure about my career choice",
+    "Feeling anxious about entrance exams",
+    "Having relationship problems at college",
+    "Academic stress is overwhelming me",
+    "I feel isolated in my hostel",
+    "Worried about job placement",
+    "Parents don't understand me",
   ];
 
   const scrollToBottom = () => {
@@ -175,8 +193,7 @@ const ChatInterface = () => {
       return;
     }
 
-    // Detect crisis keywords in user message
-    const crisisDetection = detectCrisisKeywords(messageContent);
+    // Crisis detection will be handled by the AI function
 
     // Create conversation if none exists
     let conversationId = currentConversation;
@@ -243,12 +260,14 @@ const ChatInterface = () => {
         })
       );
 
-      // Call AI function with enhanced parameters
+      // Call AI function with enhanced parameters including user info
       const { data: functionData, error: functionError } =
         await supabase.functions.invoke("ai", {
           body: {
             message: messageContent,
             conversationHistory: conversationHistory,
+            userId: user?.id,
+            userLanguage: user?.user_metadata?.preferred_language || "en",
           },
         });
 
@@ -274,6 +293,7 @@ const ChatInterface = () => {
         crisisDetected,
         crisisLevel,
         triggers,
+        advancedCrisisAnalysis,
       } = functionData || {};
 
       if (aiResponse) {
@@ -293,22 +313,19 @@ const ChatInterface = () => {
           content: aiResponse,
         });
 
-        // Handle crisis detection
-        if (crisisDetected || crisisDetection.crisisDetected) {
-          const finalCrisisLevel = crisisLevel || crisisDetection.level;
-          const allTriggers = [
-            ...(triggers || []),
-            ...crisisDetection.triggers,
-          ];
+        // Handle crisis detection using unified results from AI function
+        if (crisisDetected) {
+          const crisisLevelForAlert = crisisLevel || "medium";
+          const crisisTriggersForAlert = triggers || [];
 
           // Show crisis alert
-          showAlert(finalCrisisLevel as CrisisLevel, allTriggers);
+          showAlert(crisisLevelForAlert, crisisTriggersForAlert);
 
           // Insert system crisis message
           const crisisMessage: Message = {
             id: (Date.now() + 2).toString(),
             role: "system",
-            content: getCrisisMessage(finalCrisisLevel as CrisisLevel),
+            content: getCrisisMessage(crisisLevelForAlert),
             created_at: new Date().toISOString(),
           };
 
@@ -384,14 +401,14 @@ const ChatInterface = () => {
     }
   };
 
-  const getCrisisMessage = (level: CrisisLevel): string => {
+  const getCrisisMessage = (level: string): string => {
     switch (level) {
       case "high":
-        return "🆘 I'm concerned about what you've shared. Please consider reaching out for immediate support: Call 988 (Suicide & Crisis Lifeline) or text HOME to 741741. You don't have to go through this alone.";
+        return "🆘 I'm concerned about what you've shared. Please reach out for immediate support: Call KIRAN Mental Health Helpline at 1800-599-0019 (free, 24/7) or iCALL at 9152987821. You don't have to go through this alone.";
       case "medium":
-        return "💙 It sounds like you're going through a difficult time. Remember that help is available: 988 Suicide & Crisis Lifeline is always there, and I encourage you to talk to a counselor or trusted person.";
+        return "💙 It sounds like you're going through a difficult time. Remember that help is available: KIRAN Helpline (1800-599-0019) is free and available 24/7. I encourage you to talk to a counselor or trusted person.";
       case "low":
-        return "💚 I hear that you're struggling. If you need additional support beyond our conversation, resources like 988 Suicide & Crisis Lifeline are always available.";
+        return "💚 I hear that you're struggling. If you need additional support beyond our conversation, resources like KIRAN Helpline (1800-599-0019) and student counseling services are always available.";
       default:
         return "";
     }
@@ -483,7 +500,10 @@ const ChatInterface = () => {
                       <div className="truncate">{conversation.title}</div>
                       <div className="text-xs text-muted-foreground flex items-center">
                         <Clock className="w-3 h-3 mr-1" />
-                        {new Date(conversation.updated_at).toLocaleDateString()}
+                        {new Date(conversation.updated_at).toLocaleDateString(
+                          "en-IN",
+                          { timeZone: "Asia/Kolkata" }
+                        )}
                       </div>
                     </div>
                   </Button>
@@ -535,7 +555,7 @@ const ChatInterface = () => {
                 className="border-accent text-accent-foreground hover:bg-accent/10"
               >
                 <Phone className="w-4 h-4 mr-2" />
-                Emergency: 988
+                Emergency: 1800-599-0019
               </Button>
             </div>
           </div>
@@ -594,7 +614,10 @@ const ChatInterface = () => {
                           : "text-muted-foreground"
                       }`}
                     >
-                      {new Date(message.created_at).toLocaleTimeString()}
+                      {new Date(message.created_at).toLocaleTimeString(
+                        "en-IN",
+                        { timeZone: "Asia/Kolkata", hour12: false }
+                      )}
                     </p>
                   </div>
                 </div>
@@ -649,7 +672,7 @@ const ChatInterface = () => {
 
             <div className="flex items-center justify-center mt-3 text-xs text-muted-foreground">
               <AlertTriangle className="w-3 h-3 mr-1" />
-              Crisis? Call 988 or text HOME to 741741 immediately
+              Crisis? Call KIRAN 1800-599-0019 or iCALL 9152987821 immediately
             </div>
           </div>
         </div>

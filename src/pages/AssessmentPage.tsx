@@ -290,7 +290,7 @@ const AssessmentPage = () => {
           toast({
             title: "Immediate Support Available",
             description:
-              "Based on your responses, please consider reaching out for support: Call 988 or text HOME to 741741",
+              "Based on your responses, please consider reaching out for FREE support: Call KIRAN 1800-599-0019 or iCALL 9152987821",
             variant: "destructive",
           });
         }

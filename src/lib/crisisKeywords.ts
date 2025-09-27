@@ -162,9 +162,9 @@ function calculateConfidence(triggers: string[], text: string): number {
  */
 export function getCrisisResources(level: CrisisLevel) {
   const baseResources = {
-    hotline: "988 Suicide & Crisis Lifeline",
-    textLine: "Text HOME to 741741",
-    emergency: "Call 911 for immediate danger",
+    hotline: "KIRAN Mental Health Helpline: 1800-599-0019 (FREE 24/7)",
+    textLine: "iCALL Crisis Support: 9152987821 (FREE)",
+    emergency: "Call KIRAN 1800-599-0019 for immediate danger",
   };
 
   switch (level) {

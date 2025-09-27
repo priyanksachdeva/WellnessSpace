@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { CrisisLevel } from "@/lib/crisisKeywords";
+import { INDIAN_STUDENT_CRISIS_CONTACTS } from "@/lib/constants";
 
 interface CrisisAlertProps {
   level: CrisisLevel;
@@ -27,71 +28,72 @@ interface CrisisAlertProps {
 
 const crisisResources = {
   high: {
-    title: "🆘 Immediate Support Needed",
+    title: "🆘 Immediate Student Support Needed",
     description:
       "You mentioned some concerning thoughts. Please reach out for immediate support - you don't have to face this alone.",
-    urgentMessage: "If you're in immediate danger, call 911 now.",
+    urgentMessage:
+      "If you're in immediate danger, call KIRAN 1800-599-0019 now (free 24/7).",
     backgroundColor: "bg-destructive/10 border-destructive/30",
     titleColor: "text-destructive",
     resources: [
       {
-        title: "988 Suicide & Crisis Lifeline",
-        description: "24/7 crisis support",
+        title: "KIRAN Mental Health Helpline",
+        description: "Free 24/7 crisis support for students",
         action: "Call Now",
         icon: Phone,
-        href: "tel:988",
+        href: "tel:1800-599-0019",
         primary: true,
       },
       {
-        title: "Crisis Text Line",
-        description: "Text HOME to 741741",
-        action: "Text Now",
-        icon: MessageSquare,
-        href: "sms:741741?body=HOME",
+        title: "iCALL Crisis Helpline",
+        description: "Call 9152987821 for immediate help",
+        action: "Call Now",
+        icon: Phone,
+        href: "tel:9152987821",
         primary: true,
       },
     ],
   },
   medium: {
-    title: "💙 Support Available",
+    title: "💙 Student Support Available",
     description:
-      "It sounds like you're going through a difficult time. Help is available and you deserve support.",
+      "It sounds like you're going through a difficult time. Help is available and you deserve support as a student.",
     backgroundColor:
       "bg-orange-50 border-orange-200 dark:bg-orange-950/20 dark:border-orange-800/30",
     titleColor: "text-orange-800 dark:text-orange-200",
     resources: [
       {
-        title: "988 Suicide & Crisis Lifeline",
-        description: "24/7 support available",
+        title: "KIRAN Mental Health Helpline",
+        description: "Free 24/7 support for students",
         action: "Call for Support",
         icon: Phone,
-        href: "tel:988",
+        href: "tel:1800-599-0019",
         primary: false,
       },
       {
-        title: "Crisis Text Line",
-        description: "Text HOME to 741741",
-        action: "Text for Help",
-        icon: MessageSquare,
-        href: "sms:741741?body=HOME",
+        title: "Vandrevala Foundation",
+        description: "Call 9999666555 for student support",
+        action: "Call for Help",
+        icon: Phone,
+        href: "tel:9999666555",
         primary: false,
       },
     ],
   },
   low: {
-    title: "💚 Resources Available",
+    title: "💚 Student Resources Available",
     description:
-      "Remember that support is always available if you need it. You're taking a positive step by reaching out.",
+      "Remember that support is always available if you need it. You're taking a positive step by reaching out for help with your student challenges.",
     backgroundColor:
       "bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800/30",
     titleColor: "text-blue-800 dark:text-blue-200",
     resources: [
       {
-        title: "988 Suicide & Crisis Lifeline",
-        description: "Always here when you need support",
+        title: "KIRAN Mental Health Helpline",
+        description: "Always here for student support",
         action: "Learn More",
         icon: Phone,
-        href: "tel:988",
+        href: "tel:1800-599-0019",
         primary: false,
       },
     ],
@@ -155,7 +157,7 @@ export function CrisisAlert({
         <CardDescription className="text-sm">
           {config.description}
         </CardDescription>
-        {config.urgentMessage && (
+        {"urgentMessage" in config && config.urgentMessage && (
           <Alert className="mt-2 border-destructive/50">
             <AlertTriangle className="w-4 h-4" />
             <AlertDescription className="font-medium text-destructive">

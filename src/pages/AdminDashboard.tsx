@@ -1,23 +1,73 @@
+import React from "react";
 import Navigation from "@/components/Navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AdvancedAnalyticsDashboard } from "@/components/AdvancedAnalyticsDashboard";
+import { ModerationQueue } from "@/components/ModerationQueue";
+import { CrisisMonitoringDashboard } from "@/components/CrisisMonitoringDashboard";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
-import { Users, Calendar, MessageSquare, TrendingUp, AlertTriangle, CheckCircle, Clock, Activity } from "lucide-react";
+import {
+  BarChart3,
+  Shield,
+  AlertTriangle,
+  Users,
+  TrendingUp,
+  Settings,
+  Download,
+  RefreshCw,
+  MessageSquare,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Activity,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+} from "recharts";
 import { useAuth } from "@/hooks/useAuth";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const {
+    appointmentTrends,
+    appointmentStatus,
+    popularTimeSlots,
+    counselorUtilization,
+    systemUsage,
+    communityEngagement,
+    loading,
+    error,
+    refreshAnalytics,
+  } = useAnalytics();
+
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeConversations: 0,
     totalAppointments: 0,
-    completedAssessments: 0
+    completedAssessments: 0,
   });
   const [assessmentData, setAssessmentData] = useState([]);
-  const [appointmentTrends, setAppointmentTrends] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -29,39 +79,39 @@ const AdminDashboard = () => {
     try {
       // Fetch user count
       const { count: userCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+        .from("profiles")
+        .select("*", { count: "exact", head: true });
 
       // Fetch active conversations
       const { count: conversationCount } = await supabase
-        .from('chat_conversations')
-        .select('*', { count: 'exact', head: true });
+        .from("chat_conversations")
+        .select("*", { count: "exact", head: true });
 
       // Fetch appointments
       const { count: appointmentCount } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true });
+        .from("appointments")
+        .select("*", { count: "exact", head: true });
 
       // Fetch assessments
       const { count: assessmentCount } = await supabase
-        .from('psychological_assessments')
-        .select('*', { count: 'exact', head: true });
+        .from("psychological_assessments")
+        .select("*", { count: "exact", head: true });
 
       setStats({
         totalUsers: userCount || 0,
         activeConversations: conversationCount || 0,
         totalAppointments: appointmentCount || 0,
-        completedAssessments: assessmentCount || 0
+        completedAssessments: assessmentCount || 0,
       });
 
       // Fetch assessment severity distribution
       const { data: assessments } = await supabase
-        .from('psychological_assessments')
-        .select('severity_level, assessment_type');
+        .from("psychological_assessments")
+        .select("severity_level, assessment_type");
 
       if (assessments) {
         const severityStats = assessments.reduce((acc, assessment) => {
-          const severity = assessment.severity_level || 'Unknown';
+          const severity = assessment.severity_level || "Unknown";
           acc[severity] = (acc[severity] || 0) + 1;
           return acc;
         }, {});
@@ -69,27 +119,16 @@ const AdminDashboard = () => {
         setAssessmentData(
           Object.entries(severityStats).map(([severity, count]) => ({
             name: severity,
-            value: count
+            value: count,
           }))
         );
       }
-
-      // Mock appointment trends data (replace with real data when available)
-      setAppointmentTrends([
-        { date: '2024-01', appointments: 45 },
-        { date: '2024-02', appointments: 52 },
-        { date: '2024-03', appointments: 68 },
-        { date: '2024-04', appointments: 71 },
-        { date: '2024-05', appointments: 89 },
-        { date: '2024-06', appointments: 94 }
-      ]);
-
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error("Error fetching dashboard data:", error);
     }
   };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
   if (!user) {
     return (
@@ -99,7 +138,9 @@ const AdminDashboard = () => {
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>Access Denied</CardTitle>
-              <CardDescription>Please sign in to access the admin dashboard.</CardDescription>
+              <CardDescription>
+                Please sign in to access the admin dashboard.
+              </CardDescription>
             </CardHeader>
           </Card>
         </div>
@@ -110,15 +151,16 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Header */}
       <section className="pt-20 pb-8 bg-gradient-hero">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-heading font-bold text-white mb-4">
-            Admin Dashboard
+            Student Wellness Dashboard
           </h1>
           <p className="text-xl text-white/90">
-            Anonymous data analytics and system overview for institutional planning
+            Anonymous analytics for student mental health support program - Free
+            services across Indian educational institutions
           </p>
         </div>
       </section>
@@ -130,52 +172,66 @@ const AdminDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="group hover:shadow-elegant transition-all duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Students Registered
+                </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalUsers}</div>
                 <p className="text-xs text-muted-foreground">
-                  +12% from last month
+                  All services completely FREE
                 </p>
               </CardContent>
             </Card>
 
             <Card className="group hover:shadow-elegant transition-all duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Conversations</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Student Chat Sessions
+                </CardTitle>
                 <MessageSquare className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.activeConversations}</div>
+                <div className="text-2xl font-bold">
+                  {stats.activeConversations}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  +8% from last week
+                  24/7 confidential support
                 </p>
               </CardContent>
             </Card>
 
             <Card className="group hover:shadow-elegant transition-all duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Free Counseling Sessions
+                </CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalAppointments}</div>
+                <div className="text-2xl font-bold">
+                  {stats.totalAppointments}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  +23% from last month
+                  No cost to students ever
                 </p>
               </CardContent>
             </Card>
 
             <Card className="group hover:shadow-elegant transition-all duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Completed Assessments</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Student Wellness Assessments
+                </CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.completedAssessments}</div>
+                <div className="text-2xl font-bold">
+                  {stats.completedAssessments}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  +15% from last month
+                  Early intervention support
                 </p>
               </CardContent>
             </Card>
@@ -183,11 +239,16 @@ const AdminDashboard = () => {
 
           {/* Charts and Analytics */}
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="assessments">Assessments</TabsTrigger>
               <TabsTrigger value="appointments">Appointments</TabsTrigger>
               <TabsTrigger value="community">Community</TabsTrigger>
+              <TabsTrigger value="advanced-analytics">
+                Advanced Analytics
+              </TabsTrigger>
+              <TabsTrigger value="moderation">Moderation</TabsTrigger>
+              <TabsTrigger value="crisis">Crisis Monitoring</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -195,16 +256,49 @@ const AdminDashboard = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Appointment Trends</CardTitle>
-                    <CardDescription>Monthly appointment bookings over time</CardDescription>
+                    <CardDescription>
+                      Monthly appointment bookings over time
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={appointmentTrends}>
+                      <LineChart
+                        data={appointmentTrends.map((trend) => ({
+                          date: trend.month,
+                          appointments: trend.total,
+                          completed: trend.completed,
+                          scheduled: trend.scheduled,
+                          cancelled: trend.cancelled,
+                        }))}
+                      >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
                         <YAxis />
                         <Tooltip />
-                        <Line type="monotone" dataKey="appointments" stroke="#8884d8" strokeWidth={2} />
+                        <Line
+                          type="monotone"
+                          dataKey="appointments"
+                          stroke="#8884d8"
+                          strokeWidth={2}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="completed"
+                          stroke="#00C49F"
+                          strokeWidth={2}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="scheduled"
+                          stroke="#FFBB28"
+                          strokeWidth={2}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="cancelled"
+                          stroke="#FF8042"
+                          strokeWidth={2}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -213,25 +307,39 @@ const AdminDashboard = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>System Usage</CardTitle>
-                    <CardDescription>Platform engagement metrics</CardDescription>
+                    <CardDescription>
+                      Platform engagement metrics
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-sm">AI Chat Sessions</span>
-                        <Badge variant="secondary">834</Badge>
+                        <Badge variant="secondary">
+                          {systemUsage.chatSessions.toLocaleString("en-IN")}
+                        </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Resource Downloads</span>
-                        <Badge variant="secondary">1,247</Badge>
+                        <span className="text-sm">Assessments Completed</span>
+                        <Badge variant="secondary">
+                          {systemUsage.assessmentsCompleted.toLocaleString(
+                            "en-IN"
+                          )}
+                        </Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Community Posts</span>
-                        <Badge variant="secondary">156</Badge>
+                        <Badge variant="secondary">
+                          {systemUsage.communityPosts.toLocaleString("en-IN")}
+                        </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Crisis Interventions</span>
-                        <Badge variant="destructive">3</Badge>
+                        <span className="text-sm">Event Registrations</span>
+                        <Badge variant="secondary">
+                          {systemUsage.eventRegistrations.toLocaleString(
+                            "en-IN"
+                          )}
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -244,7 +352,9 @@ const AdminDashboard = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Assessment Severity Distribution</CardTitle>
-                    <CardDescription>Distribution of mental health assessment severity levels</CardDescription>
+                    <CardDescription>
+                      Distribution of mental health assessment severity levels
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
@@ -254,13 +364,18 @@ const AdminDashboard = () => {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          label={({ name, percent }) =>
+                            `${name} ${(percent * 100).toFixed(0)}%`
+                          }
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="value"
                         >
                           {assessmentData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
                           ))}
                         </Pie>
                         <Tooltip />
@@ -272,7 +387,9 @@ const AdminDashboard = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Assessment Types</CardTitle>
-                    <CardDescription>Most commonly used screening tools</CardDescription>
+                    <CardDescription>
+                      Most commonly used screening tools
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -311,21 +428,36 @@ const AdminDashboard = () => {
                           <CheckCircle className="w-4 h-4 text-green-500" />
                           <span className="text-sm">Completed</span>
                         </div>
-                        <Badge variant="secondary">234</Badge>
+                        <Badge variant="secondary">
+                          {appointmentStatus.completed}
+                        </Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <Clock className="w-4 h-4 text-blue-500" />
                           <span className="text-sm">Scheduled</span>
                         </div>
-                        <Badge variant="secondary">89</Badge>
+                        <Badge variant="secondary">
+                          {appointmentStatus.scheduled}
+                        </Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <AlertTriangle className="w-4 h-4 text-yellow-500" />
                           <span className="text-sm">Cancelled</span>
                         </div>
-                        <Badge variant="secondary">23</Badge>
+                        <Badge variant="secondary">
+                          {appointmentStatus.cancelled}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <AlertTriangle className="w-4 h-4 text-red-500" />
+                          <span className="text-sm">No Show</span>
+                        </div>
+                        <Badge variant="secondary">
+                          {appointmentStatus.no_show}
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -337,22 +469,20 @@ const AdminDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">10:00 AM - 12:00 PM</span>
-                        <Badge variant="outline">32%</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">2:00 PM - 4:00 PM</span>
-                        <Badge variant="outline">28%</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">4:00 PM - 6:00 PM</span>
-                        <Badge variant="outline">25%</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">6:00 PM - 8:00 PM</span>
-                        <Badge variant="outline">15%</Badge>
-                      </div>
+                      {popularTimeSlots.slice(0, 5).map((slot, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between"
+                        >
+                          <span className="text-sm">{slot.time}</span>
+                          <Badge variant="outline">{slot.count} bookings</Badge>
+                        </div>
+                      ))}
+                      {popularTimeSlots.length === 0 && (
+                        <div className="text-sm text-muted-foreground text-center py-4">
+                          No time slot data available
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -363,18 +493,22 @@ const AdminDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Dr. Sarah Chen</span>
-                        <Badge variant="secondary">94%</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Dr. Michael Rodriguez</span>
-                        <Badge variant="secondary">87%</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Dr. Emily Johnson</span>
-                        <Badge variant="secondary">91%</Badge>
-                      </div>
+                      {counselorUtilization.map((counselor, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between"
+                        >
+                          <span className="text-sm">{counselor.name}</span>
+                          <Badge variant="secondary">
+                            {counselor.utilization}%
+                          </Badge>
+                        </div>
+                      ))}
+                      {counselorUtilization.length === 0 && (
+                        <div className="text-sm text-muted-foreground text-center py-4">
+                          No counselor data available
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -386,25 +520,35 @@ const AdminDashboard = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Community Engagement</CardTitle>
-                    <CardDescription>Peer support platform activity</CardDescription>
+                    <CardDescription>
+                      Peer support platform activity
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Active Support Groups</span>
-                        <Badge variant="secondary">12</Badge>
+                        <span className="text-sm">Total Posts</span>
+                        <Badge variant="secondary">
+                          {communityEngagement.totalPosts}
+                        </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Forum Posts This Week</span>
-                        <Badge variant="secondary">89</Badge>
+                        <span className="text-sm">Total Events</span>
+                        <Badge variant="secondary">
+                          {communityEngagement.totalEvents}
+                        </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Peer Moderators</span>
-                        <Badge variant="secondary">8</Badge>
+                        <span className="text-sm">Event Fill Rate</span>
+                        <Badge variant="secondary">
+                          {communityEngagement.eventFillRate}%
+                        </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Average Response Time</span>
-                        <Badge variant="outline">2.3 hrs</Badge>
+                        <span className="text-sm">Avg. Attendees/Event</span>
+                        <Badge variant="outline">
+                          {communityEngagement.averageAttendeesPerEvent}
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -437,6 +581,49 @@ const AdminDashboard = () => {
                   </CardContent>
                 </Card>
               </div>
+            </TabsContent>
+
+            {/* Advanced Analytics Tab */}
+            <TabsContent value="advanced-analytics">
+              <AdvancedAnalyticsDashboard />
+            </TabsContent>
+
+            {/* Moderation Tab */}
+            <TabsContent value="moderation">
+              <ModerationQueue
+                actions={[]} // TODO: Replace with real moderation data
+                onActionTaken={(actionId, decision) => {
+                  console.log(`Moderation action ${actionId}: ${decision}`);
+                  // TODO: Implement moderation action handler
+                }}
+                onViewDetails={(actionId) => {
+                  console.log(`View moderation details: ${actionId}`);
+                  // TODO: Implement view details handler
+                }}
+              />
+            </TabsContent>
+
+            {/* Crisis Monitoring Tab */}
+            <TabsContent value="crisis">
+              <CrisisMonitoringDashboard
+                onViewAlert={(alertId) => {
+                  console.log(`View crisis alert: ${alertId}`);
+                  // TODO: Implement view alert handler
+                }}
+                onUpdateAlertStatus={(alertId, status, notes) => {
+                  console.log(
+                    `Update crisis alert ${alertId} to ${status}`,
+                    notes
+                  );
+                  // TODO: Implement update status handler
+                }}
+                onAssignAlert={(alertId, assigneeId) => {
+                  console.log(
+                    `Assign crisis alert ${alertId} to ${assigneeId}`
+                  );
+                  // TODO: Implement assignment handler
+                }}
+              />
             </TabsContent>
           </Tabs>
         </div>

@@ -1,145 +1,133 @@
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Download, Play, FileText, Headphones, Video, ExternalLink } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  BookOpen,
+  Download,
+  Play,
+  FileText,
+  Headphones,
+  Video,
+  ExternalLink,
+  Search,
+} from "lucide-react";
+import { useResources } from "@/hooks/useResources";
+import { useState } from "react";
+import { INDIAN_STUDENT_CRISIS_CONTACTS } from "@/lib/constants";
 
 const ResourcesPage = () => {
-  const articles = [
-    {
-      id: 1,
-      title: "Understanding Anxiety: A Complete Guide",
-      category: "Anxiety",
-      readTime: "8 min read",
-      description: "Learn about anxiety symptoms, causes, and evidence-based coping strategies.",
-      featured: true
-    },
-    {
-      id: 2,
-      title: "Building Healthy Sleep Habits",
-      category: "Sleep",
-      readTime: "6 min read",
-      description: "Practical tips for improving sleep quality and establishing better routines."
-    },
-    {
-      id: 3,
-      title: "Mindfulness Techniques for Daily Life",
-      category: "Mindfulness",
-      readTime: "10 min read",
-      description: "Simple mindfulness practices you can incorporate into your everyday routine."
-    },
-    {
-      id: 4,
-      title: "Managing Depression: Tools and Strategies",
-      category: "Depression",
-      readTime: "12 min read",
-      description: "Evidence-based approaches to understanding and managing depression.",
-      featured: true
-    }
-  ];
+  const {
+    resources,
+    loading,
+    error,
+    searchQuery,
+    selectedType,
+    selectedCategory,
+    resourcesByType,
+    searchResources,
+    setTypeFilter,
+    setCategoryFilter,
+    trackResourceView,
+  } = useResources();
 
-  const worksheets = [
-    {
-      id: 1,
-      title: "Thought Record Worksheet",
-      category: "CBT",
-      description: "Track and challenge negative thought patterns using cognitive behavioral techniques."
-    },
-    {
-      id: 2,
-      title: "Daily Mood Tracker",
-      category: "Self-Monitoring",
-      description: "Monitor your mood patterns and identify triggers throughout the day."
-    },
-    {
-      id: 3,
-      title: "Anxiety Coping Skills Checklist",
-      category: "Anxiety",
-      description: "A comprehensive list of anxiety management techniques and coping strategies."
-    },
-    {
-      id: 4,
-      title: "Gratitude Journal Template",
-      category: "Positivity",
-      description: "Structured template for daily gratitude practice and positive reflection."
-    }
-  ];
+  const [activeTab, setActiveTab] = useState("articles");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
 
-  const mediaResources = [
-    {
-      id: 1,
-      title: "Guided Meditation for Beginners",
-      type: "Audio",
-      duration: "15 min",
-      description: "A gentle introduction to meditation practice for stress relief.",
-      icon: Headphones
-    },
-    {
-      id: 2,
-      title: "Progressive Muscle Relaxation",
-      type: "Audio",
-      duration: "20 min",
-      description: "Step-by-step guided relaxation technique for physical tension relief.",
-      icon: Headphones
-    },
-    {
-      id: 3,
-      title: "Understanding Mental Health",
-      type: "Video",
-      duration: "12 min",
-      description: "Educational video covering basic mental health concepts and terminology.",
-      icon: Video
-    },
-    {
-      id: 4,
-      title: "Breathing Exercises for Anxiety",
-      type: "Video",
-      duration: "8 min",
-      description: "Visual guide to effective breathing techniques for anxiety management.",
-      icon: Video
-    }
-  ];
+  // Get filtered resources by type
+  const articles = resourcesByType.articles;
+  const worksheets = resourcesByType.worksheets;
+  const audioResources = resourcesByType.audio;
+  const videoResources = resourcesByType.video;
 
+  // Combine audio and video for media tab
+  const mediaResources = [...audioResources, ...videoResources];
+
+  const handleSearch = (term: string) => {
+    setLocalSearchTerm(term);
+    searchResources(term);
+  };
+
+  // External resources focused on Indian students (static resources)
   const externalResources = [
     {
-      title: "National Suicide Prevention Lifeline",
-      description: "24/7 crisis support and suicide prevention resources",
-      url: "https://988lifeline.org",
-      category: "Crisis Support"
+      title: "KIRAN Mental Health Helpline",
+      description: "Free 24/7 crisis support for students - Call 1800-599-0019",
+      url: "tel:1800-599-0019",
+      category: "Crisis Support",
     },
     {
-      title: "Crisis Text Line",
-      description: "Free, 24/7 support via text message",
-      url: "https://crisistextline.org",
-      category: "Crisis Support"
+      title: "iCALL - Tata Institute Crisis Helpline",
+      description: "Free psychological support for students - Call 9152987821",
+      url: "tel:9152987821",
+      category: "Crisis Support",
     },
     {
-      title: "NAMI (National Alliance on Mental Illness)",
-      description: "Mental health advocacy, education, and support resources",
-      url: "https://nami.org",
-      category: "Education"
+      title: "Vandrevala Foundation Helpline",
+      description:
+        "Mental health support for students and families - Call 9999666555",
+      url: "tel:9999666555",
+      category: "Family Support",
     },
     {
-      title: "Mental Health America",
-      description: "Mental health screening tools and educational materials",
-      url: "https://mhanational.org",
-      category: "Assessment"
-    }
+      title: "NIMHANS Student Counseling",
+      description: "Professional mental health resources and assessment tools",
+      url: "https://nimhans.ac.in",
+      category: "Assessment",
+    },
+    {
+      title: "UGC Student Helpline",
+      description: "Academic stress and career guidance for college students",
+      url: "https://www.ugc.ac.in",
+      category: "Academic Support",
+    },
   ];
+
+  const handleResourceClick = async (resourceId: string) => {
+    await trackResourceView(resourceId);
+  };
+
+  const getMediaIcon = (mediaType: string) => {
+    switch (mediaType?.toLowerCase()) {
+      case "video":
+        return Video;
+      case "audio":
+        return Headphones;
+      default:
+        return Play;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Header Section */}
       <section className="pt-20 pb-12 bg-gradient-hero">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-6">
-            Mental Health Resources
+            Student Wellness Resources
           </h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto">
-            Access evidence-based tools, educational materials, and support resources to enhance your mental wellness journey.
+            Free evidence-based tools designed for Indian students - exam stress
+            management, family pressure coping strategies, and academic support
+            resources.
           </p>
         </div>
       </section>
@@ -147,156 +135,270 @@ const ResourcesPage = () => {
       {/* Main Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Tabs defaultValue="articles" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto mb-12">
-              <TabsTrigger value="articles">Articles</TabsTrigger>
-              <TabsTrigger value="worksheets">Worksheets</TabsTrigger>
-              <TabsTrigger value="media">Audio & Video</TabsTrigger>
-              <TabsTrigger value="external">External Links</TabsTrigger>
-            </TabsList>
+          {/* Search and Filter Section */}
+          <div className="flex flex-col md:flex-row gap-4 mb-8 max-w-4xl mx-auto">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search resources..."
+                value={localSearchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select
+              value={selectedType || "all"}
+              onValueChange={(value) =>
+                setTypeFilter(value === "all" ? null : value)
+              }
+            >
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="Resource Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="article">Articles</SelectItem>
+                <SelectItem value="worksheet">Worksheets</SelectItem>
+                <SelectItem value="audio">Audio</SelectItem>
+                <SelectItem value="video">Video</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* Articles Tab */}
-            <TabsContent value="articles" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-heading font-bold mb-4">Educational Articles</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Expert-written articles covering various mental health topics, coping strategies, and wellness tips.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {articles.map((article) => (
-                  <Card key={article.id} className={`group hover:shadow-elegant transition-all duration-300 ${article.featured ? 'border-primary/50' : ''}`}>
-                    {article.featured && (
-                      <div className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium w-fit rounded-br-lg">
-                        Featured
-                      </div>
-                    )}
-                    <CardHeader>
-                      <div className="flex justify-between items-start mb-2">
-                        <Badge variant="secondary">{article.category}</Badge>
-                        <span className="text-sm text-muted-foreground">{article.readTime}</span>
-                      </div>
-                      <CardTitle className="group-hover:text-primary transition-colors">
-                        {article.title}
-                      </CardTitle>
-                      <CardDescription>{article.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button className="w-full">
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        Read Article
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
+          {/* Loading State */}
+          {loading && (
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {[...Array(4)].map((_, index) => (
+                <Card key={index}>
+                  <CardHeader>
+                    <Skeleton className="h-4 w-1/4 mb-2" />
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-10 w-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
-            {/* Worksheets Tab */}
-            <TabsContent value="worksheets" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-heading font-bold mb-4">Downloadable Worksheets</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Practical tools and exercises designed to support your mental health journey and self-reflection.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {worksheets.map((worksheet) => (
-                  <Card key={worksheet.id} className="group hover:shadow-elegant transition-all duration-300">
-                    <CardHeader>
-                      <div className="flex items-center space-x-3 mb-3">
-                        <FileText className="w-8 h-8 text-primary" />
-                        <Badge variant="outline">{worksheet.category}</Badge>
-                      </div>
-                      <CardTitle className="group-hover:text-primary transition-colors">
-                        {worksheet.title}
-                      </CardTitle>
-                      <CardDescription>{worksheet.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button className="w-full">
-                        <Download className="w-4 h-4 mr-2" />
-                        Download PDF
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-8">
+              <p className="text-red-500 mb-4">{error}</p>
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
+            </div>
+          )}
 
-            {/* Media Tab */}
-            <TabsContent value="media" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-heading font-bold mb-4">Audio & Video Resources</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Guided meditations, relaxation exercises, and educational videos to support your wellness practice.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {mediaResources.map((resource) => {
-                  const IconComponent = resource.icon;
-                  return (
-                    <Card key={resource.id} className="group hover:shadow-elegant transition-all duration-300">
+          {!loading && !error && (
+            <Tabs
+              defaultValue="articles"
+              className="w-full"
+              value={activeTab}
+              onValueChange={setActiveTab}
+            >
+              <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto mb-12">
+                <TabsTrigger value="articles">Articles</TabsTrigger>
+                <TabsTrigger value="worksheets">Worksheets</TabsTrigger>
+                <TabsTrigger value="media">Audio & Video</TabsTrigger>
+                <TabsTrigger value="external">External Links</TabsTrigger>
+              </TabsList>
+
+              {/* Articles Tab */}
+              <TabsContent value="articles" className="space-y-8">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-heading font-bold mb-4">
+                    Educational Articles
+                  </h2>
+                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                    Expert-written articles covering various mental health
+                    topics, coping strategies, and wellness tips.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {articles.map((article) => (
+                    <Card
+                      key={article.id}
+                      className={`group hover:shadow-elegant transition-all duration-300 ${
+                        article.featured ? "border-primary/50" : ""
+                      }`}
+                    >
+                      {article.featured && (
+                        <div className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium w-fit rounded-br-lg">
+                          Featured
+                        </div>
+                      )}
+                      <CardHeader>
+                        <div className="flex justify-between items-start mb-2">
+                          <Badge variant="secondary">{article.category}</Badge>
+                          <span className="text-sm text-muted-foreground">
+                            {article.estimated_duration
+                              ? `${article.estimated_duration} min read`
+                              : "Quick read"}
+                          </span>
+                        </div>
+                        <CardTitle className="group-hover:text-primary transition-colors">
+                          {article.title}
+                        </CardTitle>
+                        <CardDescription>{article.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button
+                          className="w-full"
+                          onClick={() => handleResourceClick(article.id)}
+                        >
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          Read Article
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* Worksheets Tab */}
+              <TabsContent value="worksheets" className="space-y-8">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-heading font-bold mb-4">
+                    Downloadable Worksheets
+                  </h2>
+                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                    Practical tools and exercises designed to support your
+                    mental health journey and self-reflection.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {worksheets.map((worksheet) => (
+                    <Card
+                      key={worksheet.id}
+                      className="group hover:shadow-elegant transition-all duration-300"
+                    >
                       <CardHeader>
                         <div className="flex items-center space-x-3 mb-3">
-                          <IconComponent className="w-8 h-8 text-primary" />
-                          <div className="flex space-x-2">
-                            <Badge variant="outline">{resource.type}</Badge>
-                            <Badge variant="secondary">{resource.duration}</Badge>
+                          <FileText className="w-8 h-8 text-primary" />
+                          <Badge variant="outline">{worksheet.category}</Badge>
+                        </div>
+                        <CardTitle className="group-hover:text-primary transition-colors">
+                          {worksheet.title}
+                        </CardTitle>
+                        <CardDescription>
+                          {worksheet.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button
+                          className="w-full"
+                          onClick={() => handleResourceClick(worksheet.id)}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          {worksheet.url ? "Download PDF" : "View Resource"}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* Media Tab */}
+              <TabsContent value="media" className="space-y-8">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-heading font-bold mb-4">
+                    Audio & Video Resources
+                  </h2>
+                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                    Guided meditations, relaxation exercises, and educational
+                    videos to support your wellness practice.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {mediaResources.map((resource) => {
+                    const IconComponent = getMediaIcon(resource.type);
+                    return (
+                      <Card
+                        key={resource.id}
+                        className="group hover:shadow-elegant transition-all duration-300"
+                      >
+                        <CardHeader>
+                          <div className="flex items-center space-x-3 mb-3">
+                            <IconComponent className="w-8 h-8 text-primary" />
+                            <div className="flex space-x-2">
+                              <Badge variant="outline">{resource.type}</Badge>
+                              {resource.estimated_duration && (
+                                <Badge variant="secondary">
+                                  {resource.estimated_duration} min
+                                </Badge>
+                              )}
+                            </div>
                           </div>
+                          <CardTitle className="group-hover:text-primary transition-colors">
+                            {resource.title}
+                          </CardTitle>
+                          <CardDescription>
+                            {resource.description}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Button
+                            className="w-full"
+                            onClick={() => handleResourceClick(resource.id)}
+                          >
+                            <Play className="w-4 h-4 mr-2" />
+                            Play {resource.type}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+
+              {/* External Links Tab */}
+              <TabsContent value="external" className="space-y-8">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-heading font-bold mb-4">
+                    External Resources
+                  </h2>
+                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                    Trusted external organizations and websites providing
+                    additional mental health support and information.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {externalResources.map((resource, index) => (
+                    <Card
+                      key={index}
+                      className="group hover:shadow-elegant transition-all duration-300"
+                    >
+                      <CardHeader>
+                        <div className="flex justify-between items-start mb-2">
+                          <Badge variant="outline">{resource.category}</Badge>
+                          <ExternalLink className="w-4 h-4 text-muted-foreground" />
                         </div>
                         <CardTitle className="group-hover:text-primary transition-colors">
                           {resource.title}
                         </CardTitle>
-                        <CardDescription>{resource.description}</CardDescription>
+                        <CardDescription>
+                          {resource.description}
+                        </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <Button className="w-full">
-                          <Play className="w-4 h-4 mr-2" />
-                          Play {resource.type}
+                        <Button className="w-full" variant="outline">
+                          Visit Website
                         </Button>
                       </CardContent>
                     </Card>
-                  );
-                })}
-              </div>
-            </TabsContent>
-
-            {/* External Links Tab */}
-            <TabsContent value="external" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-heading font-bold mb-4">External Resources</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Trusted external organizations and websites providing additional mental health support and information.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {externalResources.map((resource, index) => (
-                  <Card key={index} className="group hover:shadow-elegant transition-all duration-300">
-                    <CardHeader>
-                      <div className="flex justify-between items-start mb-2">
-                        <Badge variant="outline">{resource.category}</Badge>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <CardTitle className="group-hover:text-primary transition-colors">
-                        {resource.title}
-                      </CardTitle>
-                      <CardDescription>{resource.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button className="w-full" variant="outline">
-                        Visit Website
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
         </div>
       </section>
 
@@ -307,14 +409,15 @@ const ResourcesPage = () => {
             Need Immediate Help?
           </h3>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            If you're experiencing a mental health crisis or having thoughts of self-harm, please reach out for immediate support.
+            If you're experiencing a mental health crisis or having thoughts of
+            self-harm, please reach out for immediate FREE support.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="destructive" size="lg">
-              Call 988 - Suicide & Crisis Lifeline
+              Call KIRAN 1800-599-0019 - FREE 24/7
             </Button>
             <Button variant="outline" size="lg">
-              Text HOME to 741741
+              Call iCALL 9152987821 - FREE
             </Button>
           </div>
         </div>
