@@ -94,7 +94,8 @@ const ChatInterface = () => {
       console.error("Error loading conversations:", error);
       toast({
         title: "Loading Error",
-        description: "Failed to load conversation history. Please try refreshing.",
+        description:
+          "Failed to load conversation history. Please try refreshing.",
         variant: "destructive",
       });
     } else {
@@ -166,7 +167,9 @@ const ChatInterface = () => {
     if (!validationResult.success) {
       toast({
         title: "Validation Error",
-        description: validationResult.errors?.[0]?.message || "Please enter a valid message",
+        description:
+          validationResult.errors?.[0]?.message ||
+          "Please enter a valid message",
         variant: "destructive",
       });
       return;
@@ -233,10 +236,12 @@ const ChatInterface = () => {
       userMessageSaved = true;
 
       // Prepare conversation history for context (include current user message)
-      const conversationHistory = [...messages.slice(-5), userMessage].map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+      const conversationHistory = [...messages.slice(-5), userMessage].map(
+        (msg) => ({
+          role: msg.role,
+          content: msg.content,
+        })
+      );
 
       // Call AI function with enhanced parameters
       const { data: functionData, error: functionError } =
@@ -379,8 +384,6 @@ const ChatInterface = () => {
     }
   };
 
-
-
   const getCrisisMessage = (level: CrisisLevel): string => {
     switch (level) {
       case "high":
@@ -429,228 +432,228 @@ const ChatInterface = () => {
   return (
     <ErrorBoundary>
       <div className="flex h-screen bg-wellness">
-      {/* Sidebar */}
-      <div
-        className={`${
-          showSidebar ? "translate-x-0" : "-translate-x-full"
-        } fixed inset-y-0 left-0 z-50 w-80 bg-card border-r border-border/30 transition-transform lg:translate-x-0 lg:static lg:inset-0`}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-border/30">
-          <div className="flex items-center space-x-2">
-            <Heart className="w-6 h-6 text-primary" />
-            <span className="font-heading font-semibold">Chat History</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSidebar(false)}
-            className="lg:hidden"
-          >
-            ✕
-          </Button>
-        </div>
-
-        <div className="p-4">
-          <Button
-            onClick={createNewConversation}
-            className="w-full bg-gradient-hero hover:opacity-90 mb-4"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            New Conversation
-          </Button>
-
-          <div className="space-y-2">
-            {loadingConversations ? (
-              <div className="flex justify-center py-4">
-                <LoadingSpinner size="medium" />
-              </div>
-            ) : (
-              conversations.map((conversation) => (
-              <Button
-                key={conversation.id}
-                variant={
-                  currentConversation === conversation.id
-                    ? "secondary"
-                    : "ghost"
-                }
-                className="w-full justify-start text-left"
-                onClick={() => loadConversation(conversation.id)}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="truncate">{conversation.title}</div>
-                  <div className="text-xs text-muted-foreground flex items-center">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {new Date(conversation.updated_at).toLocaleDateString()}
-                  </div>
-                </div>
-              </Button>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="absolute bottom-4 left-4 right-4">
-          <Button variant="outline" onClick={signOut} className="w-full">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="bg-card border-b border-border/30 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSidebar(true)}
-                className="lg:hidden"
-              >
-                <Menu className="w-5 h-5" />
-              </Button>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-hero rounded-full flex items-center justify-center breathing">
-                  <MessageCircle className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h1 className="font-heading font-semibold">
-                    AI Support Companion
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Here to listen and support you
-                  </p>
-                </div>
-              </div>
+        {/* Sidebar */}
+        <div
+          className={`${
+            showSidebar ? "translate-x-0" : "-translate-x-full"
+          } fixed inset-y-0 left-0 z-50 w-80 bg-card border-r border-border/30 transition-transform lg:translate-x-0 lg:static lg:inset-0`}
+        >
+          <div className="flex items-center justify-between p-4 border-b border-border/30">
+            <div className="flex items-center space-x-2">
+              <Heart className="w-6 h-6 text-primary" />
+              <span className="font-heading font-semibold">Chat History</span>
             </div>
-
-            {/* Emergency Button */}
             <Button
-              variant="outline"
-              className="border-accent text-accent-foreground hover:bg-accent/10"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSidebar(false)}
+              className="lg:hidden"
             >
-              <Phone className="w-4 h-4 mr-2" />
-              Emergency: 988
+              ✕
+            </Button>
+          </div>
+
+          <div className="p-4">
+            <Button
+              onClick={createNewConversation}
+              className="w-full bg-gradient-hero hover:opacity-90 mb-4"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Conversation
+            </Button>
+
+            <div className="space-y-2">
+              {loadingConversations ? (
+                <div className="flex justify-center py-4">
+                  <LoadingSpinner size="medium" />
+                </div>
+              ) : (
+                conversations.map((conversation) => (
+                  <Button
+                    key={conversation.id}
+                    variant={
+                      currentConversation === conversation.id
+                        ? "secondary"
+                        : "ghost"
+                    }
+                    className="w-full justify-start text-left"
+                    onClick={() => loadConversation(conversation.id)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="truncate">{conversation.title}</div>
+                      <div className="text-xs text-muted-foreground flex items-center">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {new Date(conversation.updated_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </Button>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="absolute bottom-4 left-4 right-4">
+            <Button variant="outline" onClick={signOut} className="w-full">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
             </Button>
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && !currentConversation && (
-            <div className="text-center py-12">
-              <Heart className="w-16 h-16 text-primary/50 mx-auto mb-4 breathing" />
-              <h2 className="font-heading text-xl mb-2">
-                Welcome to Your Safe Space
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                Start a conversation whenever you need support. Everything is
-                confidential.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
-                {quickResponses.map((response, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    className="text-left justify-start h-auto p-4 hover:bg-primary/5"
-                    onClick={() => handleQuickResponse(response)}
-                  >
-                    "{response}"
-                  </Button>
-                ))}
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <div className="bg-card border-b border-border/30 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSidebar(true)}
+                  className="lg:hidden"
+                >
+                  <Menu className="w-5 h-5" />
+                </Button>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-hero rounded-full flex items-center justify-center breathing">
+                    <MessageCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="font-heading font-semibold">
+                      AI Support Companion
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                      Here to listen and support you
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
 
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
+              {/* Emergency Button */}
+              <Button
+                variant="outline"
+                className="border-accent text-accent-foreground hover:bg-accent/10"
+              >
+                <Phone className="w-4 h-4 mr-2" />
+                Emergency: 988
+              </Button>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.length === 0 && !currentConversation && (
+              <div className="text-center py-12">
+                <Heart className="w-16 h-16 text-primary/50 mx-auto mb-4 breathing" />
+                <h2 className="font-heading text-xl mb-2">
+                  Welcome to Your Safe Space
+                </h2>
+                <p className="text-muted-foreground mb-6">
+                  Start a conversation whenever you need support. Everything is
+                  confidential.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                  {quickResponses.map((response, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      className="text-left justify-start h-auto p-4 hover:bg-primary/5"
+                      onClick={() => handleQuickResponse(response)}
+                    >
+                      "{response}"
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {messages.map((message) => (
               <div
-                className={`max-w-[80%] ${
-                  message.role === "user" ? "order-2" : "order-1"
+                key={message.id}
+                className={`flex ${
+                  message.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
                 <div
-                  className={`p-4 rounded-2xl ${
-                    message.role === "user"
-                      ? "bg-gradient-hero text-white"
-                      : "bg-card border border-border/30 shadow-wellness"
+                  className={`max-w-[80%] ${
+                    message.role === "user" ? "order-2" : "order-1"
                   }`}
                 >
-                  <p className="leading-relaxed">{message.content}</p>
-                  <p
-                    className={`text-xs mt-2 ${
+                  <div
+                    className={`p-4 rounded-2xl ${
                       message.role === "user"
-                        ? "text-white/70"
-                        : "text-muted-foreground"
+                        ? "bg-gradient-hero text-white"
+                        : "bg-card border border-border/30 shadow-wellness"
                     }`}
                   >
-                    {new Date(message.created_at).toLocaleTimeString()}
-                  </p>
+                    <p className="leading-relaxed">{message.content}</p>
+                    <p
+                      className={`text-xs mt-2 ${
+                        message.role === "user"
+                          ? "text-white/70"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {new Date(message.created_at).toLocaleTimeString()}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {loading && (
-            <div className="flex justify-start">
-              <div className="bg-card border border-border/30 rounded-2xl p-4 shadow-wellness">
-                <div className="flex items-center space-x-2">
-                  <LoadingSpinner size="small" />
-                  <span className="text-muted-foreground">
-                    AI is typing...
-                  </span>
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-card border border-border/30 rounded-2xl p-4 shadow-wellness">
+                  <div className="flex items-center space-x-2">
+                    <LoadingSpinner size="small" />
+                    <span className="text-muted-foreground">
+                      AI is typing...
+                    </span>
+                  </div>
                 </div>
               </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Crisis Alert */}
+          {activeAlert && (
+            <div className="px-4">
+              <CrisisAlert
+                level={activeAlert.level}
+                triggers={activeAlert.triggers}
+                onDismiss={dismissAlert}
+              />
             </div>
           )}
 
-          <div ref={messagesEndRef} />
-        </div>
+          {/* Input Area */}
+          <div className="bg-card border-t border-border/30 p-4">
+            <form onSubmit={handleSubmit} className="flex space-x-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Share what's on your mind..."
+                disabled={loading}
+                className="flex-1 border-border/50 focus:border-primary"
+              />
+              <Button
+                type="submit"
+                disabled={loading || !input.trim()}
+                className="bg-gradient-hero hover:opacity-90 shadow-soft px-6"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </form>
 
-        {/* Crisis Alert */}
-        {activeAlert && (
-          <div className="px-4">
-            <CrisisAlert
-              level={activeAlert.level}
-              triggers={activeAlert.triggers}
-              onDismiss={dismissAlert}
-            />
-          </div>
-        )}
-
-        {/* Input Area */}
-        <div className="bg-card border-t border-border/30 p-4">
-          <form onSubmit={handleSubmit} className="flex space-x-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Share what's on your mind..."
-              disabled={loading}
-              className="flex-1 border-border/50 focus:border-primary"
-            />
-            <Button
-              type="submit"
-              disabled={loading || !input.trim()}
-              className="bg-gradient-hero hover:opacity-90 shadow-soft px-6"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </form>
-
-          <div className="flex items-center justify-center mt-3 text-xs text-muted-foreground">
-            <AlertTriangle className="w-3 h-3 mr-1" />
-            Crisis? Call 988 or text HOME to 741741 immediately
+            <div className="flex items-center justify-center mt-3 text-xs text-muted-foreground">
+              <AlertTriangle className="w-3 h-3 mr-1" />
+              Crisis? Call 988 or text HOME to 741741 immediately
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </ErrorBoundary>
   );
 };

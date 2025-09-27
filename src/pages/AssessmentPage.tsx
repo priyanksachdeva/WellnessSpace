@@ -104,8 +104,6 @@ const AssessmentPage = () => {
     { value: "3", label: "Nearly every day" },
   ];
 
-
-
   const getSeverityLevel = (score, assessmentType) => {
     switch (assessmentType) {
       case "phq9":
@@ -219,14 +217,19 @@ const AssessmentPage = () => {
       if (!validationResult.success) {
         toast({
           title: "Validation Error",
-          description: validationResult.errors?.[0]?.message || "Please complete all required fields",
+          description:
+            validationResult.errors?.[0]?.message ||
+            "Please complete all required fields",
           variant: "destructive",
         });
         return;
       }
 
       // Calculate score using validation helper
-      const scoreResult = calculateAssessmentScore(validationResult.data.responses, expectedCount);
+      const scoreResult = calculateAssessmentScore(
+        validationResult.data.responses,
+        expectedCount
+      );
       if (!scoreResult.isValid) {
         toast({
           title: "Scoring Error",
@@ -253,7 +256,10 @@ const AssessmentPage = () => {
       if (crisisDetection.crisisDetected) {
         crisisLevel = crisisDetection.level;
         triggers = crisisDetection.triggers;
-      } else if (severityLevel === "Severe" || severityLevel === "Moderately Severe") {
+      } else if (
+        severityLevel === "Severe" ||
+        severityLevel === "Moderately Severe"
+      ) {
         crisisLevel = "high";
       } else if (severityLevel === "Moderate") {
         crisisLevel = "medium";
@@ -279,11 +285,12 @@ const AssessmentPage = () => {
       // Show crisis alert if needed
       if (crisisLevel) {
         setCrisisAlert({ level: crisisLevel, triggers });
-        
-        if (crisisLevel === 'high') {
+
+        if (crisisLevel === "high") {
           toast({
             title: "Immediate Support Available",
-            description: "Based on your responses, please consider reaching out for support: Call 988 or text HOME to 741741",
+            description:
+              "Based on your responses, please consider reaching out for support: Call 988 or text HOME to 741741",
             variant: "destructive",
           });
         }
@@ -456,172 +463,179 @@ const AssessmentPage = () => {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
-      <Navigation />
+        <Navigation />
 
-      {/* Header */}
-      <section className="pt-20 pb-12 bg-gradient-hero">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-6">
-            Psychological Assessment Tools
-          </h1>
-          <p className="text-xl text-white/90 max-w-3xl mx-auto">
-            Confidential, evidence-based screening tools to help assess your
-            mental health and guide you toward appropriate support.
-          </p>
-        </div>
-      </section>
-
-      {/* Crisis Alert */}
-      {crisisAlert && (
-        <section className="py-4">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <CrisisAlert
-              level={crisisAlert.level}
-              triggers={crisisAlert.triggers}
-              onDismiss={crisisAlert.level !== 'high' ? () => setCrisisAlert(null) : undefined}
-            />
-          </div>
-        </section>
-      )}
-
-      {/* Assessment Tools */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="mb-8">
-            <h2 className="text-2xl font-heading font-bold mb-4">
-              Available Assessment Tools
-            </h2>
-            <p className="text-muted-foreground">
-              These standardized screening tools are used by mental health
-              professionals worldwide. Your responses are confidential and will
-              help determine the most appropriate support for you.
+        {/* Header */}
+        <section className="pt-20 pb-12 bg-gradient-hero">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-6">
+              Psychological Assessment Tools
+            </h1>
+            <p className="text-xl text-white/90 max-w-3xl mx-auto">
+              Confidential, evidence-based screening tools to help assess your
+              mental health and guide you toward appropriate support.
             </p>
           </div>
+        </section>
 
-          <Tabs
-            value={currentAssessment}
-            onValueChange={setCurrentAssessment}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="phq9" className="text-center">
-                <div className="flex items-center space-x-2">
-                  <Brain className="w-4 h-4" />
-                  <span>PHQ-9</span>
-                  {completedAssessments.has("phq9") && (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  )}
-                </div>
-              </TabsTrigger>
-              <TabsTrigger value="gad7" className="text-center">
-                <div className="flex items-center space-x-2">
-                  <Heart className="w-4 h-4" />
-                  <span>GAD-7</span>
-                  {completedAssessments.has("gad7") && (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  )}
-                </div>
-              </TabsTrigger>
-              <TabsTrigger value="ghq12" className="text-center">
-                <div className="flex items-center space-x-2">
-                  <Activity className="w-4 h-4" />
-                  <span>GHQ-12</span>
-                  {completedAssessments.has("ghq12") && (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  )}
-                </div>
-              </TabsTrigger>
-            </TabsList>
+        {/* Crisis Alert */}
+        {crisisAlert && (
+          <section className="py-4">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <CrisisAlert
+                level={crisisAlert.level}
+                triggers={crisisAlert.triggers}
+                onDismiss={
+                  crisisAlert.level !== "high"
+                    ? () => setCrisisAlert(null)
+                    : undefined
+                }
+              />
+            </div>
+          </section>
+        )}
 
-            <TabsContent value="phq9" className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Brain className="w-5 h-5" />
-                    <span>PHQ-9: Patient Health Questionnaire</span>
-                  </CardTitle>
-                  <CardDescription>
-                    A 9-question screening tool for depression. This assessment
-                    is widely used by healthcare professionals to evaluate
-                    depression severity and monitor treatment progress.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {renderQuestions(
-                    phq9Questions,
-                    phq9Responses,
-                    setPHQ9Responses,
-                    "phq9"
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="gad7" className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Heart className="w-5 h-5" />
-                    <span>GAD-7: Generalized Anxiety Disorder Scale</span>
-                  </CardTitle>
-                  <CardDescription>
-                    A 7-question screening tool for anxiety disorders. This
-                    assessment helps identify symptoms of generalized anxiety
-                    and determine appropriate treatment recommendations.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {renderQuestions(
-                    gad7Questions,
-                    gad7Responses,
-                    setGAD7Responses,
-                    "gad7"
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="ghq12" className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Activity className="w-5 h-5" />
-                    <span>GHQ-12: General Health Questionnaire</span>
-                  </CardTitle>
-                  <CardDescription>
-                    A 12-question screening tool for general psychological
-                    well-being. This assessment evaluates overall mental health
-                    and identifies potential areas of concern.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {renderQuestions(
-                    ghq12Questions,
-                    ghq12Responses,
-                    setGHQ12Responses,
-                    "ghq12"
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-
-          {/* Privacy Notice */}
-          <Card className="mt-8 border-primary/20 bg-primary/5">
-            <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2">Privacy & Confidentiality</h3>
-              <p className="text-sm text-muted-foreground">
-                Your assessment responses are confidential and encrypted. They
-                are used solely for providing personalized mental health
-                recommendations and connecting you with appropriate support
-                resources. Your data helps our institution understand mental
-                health trends anonymously to improve services.
+        {/* Assessment Tools */}
+        <section className="py-16">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="mb-8">
+              <h2 className="text-2xl font-heading font-bold mb-4">
+                Available Assessment Tools
+              </h2>
+              <p className="text-muted-foreground">
+                These standardized screening tools are used by mental health
+                professionals worldwide. Your responses are confidential and
+                will help determine the most appropriate support for you.
               </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-    </div>
+            </div>
+
+            <Tabs
+              value={currentAssessment}
+              onValueChange={setCurrentAssessment}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="phq9" className="text-center">
+                  <div className="flex items-center space-x-2">
+                    <Brain className="w-4 h-4" />
+                    <span>PHQ-9</span>
+                    {completedAssessments.has("phq9") && (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="gad7" className="text-center">
+                  <div className="flex items-center space-x-2">
+                    <Heart className="w-4 h-4" />
+                    <span>GAD-7</span>
+                    {completedAssessments.has("gad7") && (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="ghq12" className="text-center">
+                  <div className="flex items-center space-x-2">
+                    <Activity className="w-4 h-4" />
+                    <span>GHQ-12</span>
+                    {completedAssessments.has("ghq12") && (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="phq9" className="mt-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Brain className="w-5 h-5" />
+                      <span>PHQ-9: Patient Health Questionnaire</span>
+                    </CardTitle>
+                    <CardDescription>
+                      A 9-question screening tool for depression. This
+                      assessment is widely used by healthcare professionals to
+                      evaluate depression severity and monitor treatment
+                      progress.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {renderQuestions(
+                      phq9Questions,
+                      phq9Responses,
+                      setPHQ9Responses,
+                      "phq9"
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="gad7" className="mt-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Heart className="w-5 h-5" />
+                      <span>GAD-7: Generalized Anxiety Disorder Scale</span>
+                    </CardTitle>
+                    <CardDescription>
+                      A 7-question screening tool for anxiety disorders. This
+                      assessment helps identify symptoms of generalized anxiety
+                      and determine appropriate treatment recommendations.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {renderQuestions(
+                      gad7Questions,
+                      gad7Responses,
+                      setGAD7Responses,
+                      "gad7"
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="ghq12" className="mt-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Activity className="w-5 h-5" />
+                      <span>GHQ-12: General Health Questionnaire</span>
+                    </CardTitle>
+                    <CardDescription>
+                      A 12-question screening tool for general psychological
+                      well-being. This assessment evaluates overall mental
+                      health and identifies potential areas of concern.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {renderQuestions(
+                      ghq12Questions,
+                      ghq12Responses,
+                      setGHQ12Responses,
+                      "ghq12"
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+
+            {/* Privacy Notice */}
+            <Card className="mt-8 border-primary/20 bg-primary/5">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold mb-2">
+                  Privacy & Confidentiality
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Your assessment responses are confidential and encrypted. They
+                  are used solely for providing personalized mental health
+                  recommendations and connecting you with appropriate support
+                  resources. Your data helps our institution understand mental
+                  health trends anonymously to improve services.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </div>
     </ErrorBoundary>
   );
 };
