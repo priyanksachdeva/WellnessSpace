@@ -24,9 +24,8 @@ const AuthPage = () => {
   const [displayName, setDisplayName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const { signUp, signIn } = useAuth();
+  const { signUp, signIn, signUpLoading, signInLoading } = useAuth();
   const { toast } = useToast();
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -50,47 +49,17 @@ const AuthPage = () => {
       return;
     }
 
-    setLoading(true);
-    const { error } = await signUp(
+    await signUp(
       email,
       password,
       isAnonymous ? "Anonymous User" : displayName
     );
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Welcome!",
-        description: "Your account has been created successfully.",
-      });
-    }
-    setLoading(false);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setLoading(true);
-    const { error } = await signIn(email, password);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You have been signed in successfully.",
-      });
-    }
-    setLoading(false);
+    await signIn(email, password);
   };
 
   return (
@@ -196,9 +165,9 @@ const AuthPage = () => {
                   <Button
                     type="submit"
                     className="w-full bg-gradient-hero hover:opacity-90 shadow-soft"
-                    disabled={loading}
+                    disabled={signInLoading}
                   >
-                    {loading ? "Signing in..." : "Sign In"}
+                    {signInLoading ? "Signing in..." : "Sign In"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
 
@@ -298,9 +267,9 @@ const AuthPage = () => {
                   <Button
                     type="submit"
                     className="w-full bg-gradient-hero hover:opacity-90 shadow-soft"
-                    disabled={loading}
+                    disabled={signUpLoading}
                   >
-                    {loading ? "Creating account..." : "Create Account"}
+                    {signUpLoading ? "Creating account..." : "Create Account"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </CardFooter>

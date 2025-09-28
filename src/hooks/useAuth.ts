@@ -3,6 +3,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session, AuthError } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 
+// Development-only instrumentation
+const isDev = import.meta.env.DEV;
+const AUTH_TIMEOUT_MS = 10000; // 10 seconds timeout for dev
+
+const logAuthTiming = (operation: string, startTime: number) => {
+  if (!isDev) return;
+  const duration = Date.now() - startTime;
+  console.log(`[AUTH] ${operation} completed in ${duration}ms`);
+  
+  if (duration > 5000) {
+    console.warn(`[AUTH] Slow ${operation} detected: ${duration}ms`);
+  }
+};
+
+const logAuthStart = (operation: string) => {
+  if (!isDev) return;
+  console.log(`[AUTH] ${operation} started`);
+  performance?.mark(`auth-${operation}-start`);
+  return Date.now();
+};
+
+const detectTimeout = (operation: string, onTimeout: () => void) => {
+  if (!isDev) return;
+  
+  return setTimeout(() => {
+    console.error(`[AUTH] Timeout detected for ${operation} after ${AUTH_TIMEOUT_MS}ms`);
+    onTimeout();
+  }, AUTH_TIMEOUT_MS);
+};
+
 interface AuthState {
   user: User | null;
   session: Session | null;
@@ -30,13 +60,28 @@ export const useAuth = () => {
 
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout;
+    let timeoutGuard: NodeJS.Timeout;
 
     const initializeAuth = async (retryCount = 0) => {
+      const startTime = logAuthStart("Auth initialization");
+      
       try {
+        // Development timeout guard
+        timeoutGuard = detectTimeout("Auth initialization", () => {
+          setAuthState((prev) => ({ ...prev, loading: false }));
+          toast({
+            title: "Connection Timeout",
+            description: "Authentication is taking longer than expected. Please refresh the page.",
+            variant: "destructive",
+          });
+        });
+
         // Set up auth state listener
         const {
           data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
+          if (isDev) console.log(`[AUTH] State change event: ${event}`);
+          
           setAuthState((prev) => ({
             ...prev,
             session,
@@ -48,17 +93,23 @@ export const useAuth = () => {
           if (event === "SIGNED_IN" && session?.user) {
             await syncUserProfile(session.user);
           }
+          
+          if (timeoutGuard) clearTimeout(timeoutGuard);
         });
 
         // Get initial session with retry logic
+        const sessionStartTime = logAuthStart("Session retrieval");
         const {
           data: { session },
           error,
         } = await supabase.auth.getSession();
+        
+        logAuthTiming("Session retrieval", sessionStartTime);
 
         if (error) {
           console.error("Error getting session:", error);
           if (retryCount < 3) {
+            if (isDev) console.log(`[AUTH] Retrying auth initialization (attempt ${retryCount + 1}/3)`);
             retryTimeout = setTimeout(() => {
               initializeAuth(retryCount + 1);
             }, 1000 * Math.pow(2, retryCount)); // Exponential backoff
@@ -73,10 +124,14 @@ export const useAuth = () => {
           loading: false,
         }));
 
+        logAuthTiming("Auth initialization", startTime);
+        if (timeoutGuard) clearTimeout(timeoutGuard);
+
         return () => subscription?.unsubscribe();
       } catch (error) {
         console.error("Error initializing auth:", error);
         setAuthState((prev) => ({ ...prev, loading: false }));
+        if (timeoutGuard) clearTimeout(timeoutGuard);
       }
     };
 
@@ -84,6 +139,7 @@ export const useAuth = () => {
 
     return () => {
       if (retryTimeout) clearTimeout(retryTimeout);
+      if (timeoutGuard) clearTimeout(timeoutGuard);
       cleanup?.then((unsub) => unsub?.());
     };
   }, []);
@@ -185,13 +241,26 @@ export const useAuth = () => {
     password: string,
     retryCount = 0
   ): Promise<AuthResult> => {
+    const startTime = logAuthStart("Sign in");
     setAuthState((prev) => ({ ...prev, signInLoading: true }));
+
+    // Development timeout guard
+    const timeoutGuard = detectTimeout("Sign in", () => {
+      setAuthState((prev) => ({ ...prev, signInLoading: false }));
+      toast({
+        title: "Sign In Timeout",
+        description: "Sign in is taking longer than expected. Please try again.",
+        variant: "destructive",
+      });
+    });
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
+      if (timeoutGuard) clearTimeout(timeoutGuard);
 
       if (error) {
         let errorMessage = "Failed to sign in. Please check your credentials.";
@@ -214,6 +283,8 @@ export const useAuth = () => {
         return { success: false, error };
       }
 
+      logAuthTiming("Sign in", startTime);
+      
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
@@ -223,9 +294,11 @@ export const useAuth = () => {
     } catch (error) {
       const err = error as Error;
       console.error("Sign in error:", err);
+      if (timeoutGuard) clearTimeout(timeoutGuard);
 
       // Retry logic for network errors
       if (err.message.includes("network") && retryCount < 2) {
+        if (isDev) console.log(`[AUTH] Retrying sign in (attempt ${retryCount + 1}/3)`);
         setTimeout(() => signIn(email, password, retryCount + 1), 1000);
         return { success: false, error: err };
       }
