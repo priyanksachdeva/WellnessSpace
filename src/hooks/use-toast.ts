@@ -72,7 +72,7 @@ const addToRemoveQueue = (toastId: string, toast?: ToasterToast) => {
   }
 
   const delay = toast ? getRemovalDelay(toast.variant) : TOAST_REMOVE_DELAY;
-  
+
   const timeout = setTimeout(() => {
     toastTimeouts.delete(toastId);
     dispatch({
@@ -95,7 +95,9 @@ export const reducer = (state: State, action: Action): State => {
     case "UPDATE_TOAST":
       return {
         ...state,
-        toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
+        toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t
+        ),
       };
 
     case "DISMISS_TOAST": {
@@ -104,7 +106,7 @@ export const reducer = (state: State, action: Action): State => {
       // ! Side effects ! - This could be extracted into a dismissToast() action,
       // but I'll keep it here for simplicity
       if (toastId) {
-        const toast = state.toasts.find(t => t.id === toastId);
+        const toast = state.toasts.find((t) => t.id === toastId);
         addToRemoveQueue(toastId, toast);
       } else {
         state.toasts.forEach((toast) => {
@@ -120,7 +122,7 @@ export const reducer = (state: State, action: Action): State => {
                 ...t,
                 open: false,
               }
-            : t,
+            : t
         ),
       };
     }

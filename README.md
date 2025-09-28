@@ -10,6 +10,7 @@ A comprehensive mental health support platform designed specifically for Indian 
 ## 🌟 Features
 
 ### Core Features
+
 - **🤖 AI Chatbot**: Intelligent mental health support with crisis detection
 - **📋 Mental Health Assessments**: PHQ-9, GAD-7, and GHQ-12 questionnaires
 - **👥 Peer Support Community**: Anonymous forum for student discussions
@@ -19,6 +20,7 @@ A comprehensive mental health support platform designed specifically for Indian 
 - **📊 Admin Dashboard**: Analytics and moderation tools
 
 ### Technical Features
+
 - **🔐 Secure Authentication**: Email-based auth with anonymous options
 - **⚡ Real-time Updates**: Live chat and notifications
 - **📱 Responsive Design**: Mobile-first PWA design
@@ -28,6 +30,7 @@ A comprehensive mental health support platform designed specifically for Indian 
 ## 🏗️ Architecture
 
 ### Frontend Stack
+
 - **React 18.3.1** with TypeScript
 - **Vite 5.4.19** for fast development and building
 - **TailwindCSS** + **Radix UI** for modern, accessible UI
@@ -36,12 +39,14 @@ A comprehensive mental health support platform designed specifically for Indian 
 - **React Hook Form** + **Zod** for form handling and validation
 
 ### Backend Stack
+
 - **Supabase** (PostgreSQL + Auth + Real-time + Storage)
 - **Row Level Security (RLS)** for data protection
 - **Edge Functions** for AI integration and serverless logic
 - **Real-time subscriptions** for live features
 
 ### AI Integration
+
 - **Google Gemini API** for intelligent chat responses
 - **Crisis detection algorithms** for risk assessment
 - **Personalized recommendations** based on assessment results
@@ -49,7 +54,8 @@ A comprehensive mental health support platform designed specifically for Indian 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or bun
 - Supabase account
 - Google Gemini API key
@@ -57,12 +63,14 @@ A comprehensive mental health support platform designed specifically for Indian 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/priyanksachdeva/solace-connect-flow.git
    cd solace-connect-flow
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -70,11 +78,13 @@ A comprehensive mental health support platform designed specifically for Indian 
    ```
 
 3. **Environment Setup**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Update `.env` with your credentials:
+
    ```env
    VITE_SUPABASE_PROJECT_ID=your_project_id
    VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
@@ -83,22 +93,24 @@ A comprehensive mental health support platform designed specifically for Indian 
    ```
 
 4. **Database Setup**
+
    ```bash
    # Install Supabase CLI
    npm install -g @supabase/cli
-   
+
    # Initialize Supabase
    supabase init
-   
+
    # Run migrations
    supabase db push
    ```
 
 5. **Start Development Server**
+
    ```bash
    npm run dev
    ```
-   
+
    Visit `http://localhost:8080` to see the application.
 
 ## 📁 Project Structure
@@ -180,16 +192,17 @@ supabase functions serve # Serve edge functions locally
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `VITE_SUPABASE_URL` | Supabase project URL | ✅ |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key | ✅ |
-| `VITE_SUPABASE_PROJECT_ID` | Supabase project ID | ✅ |
-| `GEMINI_API_KEY` | Google Gemini API key | ✅ |
+| Variable                        | Description              | Required |
+| ------------------------------- | ------------------------ | -------- |
+| `VITE_SUPABASE_URL`             | Supabase project URL     | ✅       |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key | ✅       |
+| `VITE_SUPABASE_PROJECT_ID`      | Supabase project ID      | ✅       |
+| `GEMINI_API_KEY`                | Google Gemini API key    | ✅       |
 
 ### Database Schema
 
 The application uses PostgreSQL with the following main tables:
+
 - `profiles` - User profiles and crisis contacts
 - `chat_conversations` - AI chat sessions
 - `chat_messages` - Chat message history
@@ -203,11 +216,13 @@ The application uses PostgreSQL with the following main tables:
 ### Production Deployment
 
 1. **Build the application**
+
    ```bash
    npm run build
    ```
 
 2. **Deploy to hosting platform**
+
    - **Vercel**: Connect GitHub repo and deploy automatically
    - **Netlify**: Drag and drop `dist` folder or connect repo
    - **Railway/Render**: Connect repo and configure build settings
@@ -222,12 +237,14 @@ The application uses PostgreSQL with the following main tables:
 ### Environment Setup
 
 **Development:**
+
 ```bash
 VITE_SUPABASE_URL=https://localhost:54321
 VITE_SUPABASE_PUBLISHABLE_KEY=local_anon_key
 ```
 
 **Production:**
+
 ```bash
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your_production_anon_key
@@ -244,6 +261,7 @@ We welcome contributions! Please follow these steps:
 5. Open a Pull Request
 
 ### Development Guidelines
+
 - Follow TypeScript best practices
 - Use conventional commit messages
 - Maintain test coverage
@@ -253,6 +271,7 @@ We welcome contributions! Please follow these steps:
 ## 📋 Roadmap
 
 ### Phase 1: Core Features ✅
+
 - [x] User authentication and profiles
 - [x] AI chatbot with crisis detection
 - [x] Mental health assessments
@@ -260,6 +279,7 @@ We welcome contributions! Please follow these steps:
 - [x] Resource hub with educational content
 
 ### Phase 2: Enhanced Features 🚧
+
 - [ ] Real-time chat notifications
 - [ ] Advanced community features (voting, comments)
 - [ ] Counselor video calling integration
@@ -267,12 +287,14 @@ We welcome contributions! Please follow these steps:
 - [ ] Multi-language support (Hindi, regional languages)
 
 ### Phase 3: Advanced Analytics 📋
+
 - [ ] Population health trends
-- [ ] Predictive risk modeling  
+- [ ] Predictive risk modeling
 - [ ] Institutional dashboard
 - [ ] Research data export (anonymized)
 
 ### Phase 4: Integrations 📋
+
 - [ ] Calendar system integration
 - [ ] SMS/WhatsApp notifications
 - [ ] Email automation
@@ -289,6 +311,7 @@ We welcome contributions! Please follow these steps:
 ## 📞 Crisis Support
 
 **Immediate Help:**
+
 - **KIRAN Helpline**: 1800-599-0019 (24/7 toll-free)
 - **National Emergency**: 112
 - **Suicide Prevention**: Available through app interface

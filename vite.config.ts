@@ -38,10 +38,14 @@ export default defineConfig(({ mode }) => ({
             },
           },
           // Auth endpoints - no caching in development
-          ...(mode === "development" ? [{
-            urlPattern: /^https:\/\/.*\.supabase\.co.*\/auth\//,
-            handler: "NetworkOnly" as const,
-          }] : []),
+          ...(mode === "development"
+            ? [
+                {
+                  urlPattern: /^https:\/\/.*\.supabase\.co.*\/auth\//,
+                  handler: "NetworkOnly" as const,
+                },
+              ]
+            : []),
           // Supabase API caching for non-auth endpoints
           {
             urlPattern: /^https:\/\/.*\.supabase\.co/,

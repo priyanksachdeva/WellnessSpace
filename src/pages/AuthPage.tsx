@@ -49,11 +49,7 @@ const AuthPage = () => {
       return;
     }
 
-    await signUp(
-      email,
-      password,
-      isAnonymous ? "Anonymous User" : displayName
-    );
+    await signUp(email, password, isAnonymous ? "Anonymous User" : displayName);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
