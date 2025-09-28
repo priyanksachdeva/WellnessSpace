@@ -36,10 +36,43 @@
       name="twitter:image"
       content="https://lovable.dev/opengraph-image-p98pqg.png"
     />
+
+    <!-- Botpress Chatbot Scripts in Head -->
+    <script
+      src="https://cdn.botpress.cloud/webchat/v3.3/inject.js"
+      async
+    ></script>
+    <script
+      src="https://files.bpcontent.cloud/2025/09/27/17/20250927173242-32D39YNH.js"
+      async
+    ></script>
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Botpress Chatbot Integration -->
+    <script src="https://cdn.botpress.cloud/webchat/v3.3/inject.js"></script>
+    <script src="https://files.bpcontent.cloud/2025/09/27/17/20250927173242-32D39YNH.js"></script>
+
+    <!-- Botpress Initialization -->
+    <script>
+      window.addEventListener("load", function () {
+        // Wait for Botpress to be available
+        if (window.botpress) {
+          console.log("Botpress chatbot loaded successfully");
+        } else {
+          console.log("Waiting for Botpress to load...");
+          setTimeout(() => {
+            if (window.botpress) {
+              console.log("Botpress chatbot loaded after delay");
+            } else {
+              console.error("Botpress failed to load");
+            }
+          }, 2000);
+        }
+      });
+    </script>
   </body>
 </html>
