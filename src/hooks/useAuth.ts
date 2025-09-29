@@ -42,6 +42,9 @@ interface AuthState {
   signInLoading: boolean;
   signUpLoading: boolean;
   signOutLoading: boolean;
+  userRole: string | null;
+  isAdmin: boolean;
+  isCounselor: boolean;
 }
 
 interface AuthResult {
@@ -57,6 +60,9 @@ export const useAuth = () => {
     signInLoading: false,
     signUpLoading: false,
     signOutLoading: false,
+    userRole: null,
+    isAdmin: false,
+    isCounselor: false,
   });
   const { toast } = useToast();
 
@@ -92,9 +98,18 @@ export const useAuth = () => {
             loading: false,
           }));
 
-          // Sync user profile when user signs in
+          // Sync user profile and get role when user signs in
           if (event === "SIGNED_IN" && session?.user) {
             await syncUserProfile(session.user);
+            await updateUserRole(session.user.id);
+          } else if (event === "SIGNED_OUT") {
+            // Clear role data on sign out
+            setAuthState((prev) => ({
+              ...prev,
+              userRole: null,
+              isAdmin: false,
+              isCounselor: false,
+            }));
           }
 
           if (timeoutGuard) clearTimeout(timeoutGuard);
@@ -152,13 +167,43 @@ export const useAuth = () => {
     };
   }, []);
 
+  const updateUserRole = async (userId: string): Promise<void> => {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (profile) {
+        // Check if role column exists, fallback to student if not
+        const role = (profile as any).role || 'student';
+        setAuthState((prev) => ({
+          ...prev,
+          userRole: role,
+          isAdmin: role === 'admin' || role === 'super_admin',
+          isCounselor: role === 'counselor',
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      // Default to student role if there's an error
+      setAuthState((prev) => ({
+        ...prev,
+        userRole: 'student',
+        isAdmin: false,
+        isCounselor: false,
+      }));
+    }
+  };
+
   const syncUserProfile = async (user: User, retryCount = 0): Promise<void> => {
     try {
       // Check if profile exists
       const { data: existingProfile } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("id", user.id)
         .single();
 
       if (!existingProfile) {
@@ -166,7 +211,6 @@ export const useAuth = () => {
         const { error: profileError } = await supabase.from("profiles").insert({
           user_id: user.id,
           display_name: user.user_metadata?.display_name || "Anonymous User",
-          is_anonymous: false,
         });
 
         if (profileError) {
@@ -371,6 +415,9 @@ export const useAuth = () => {
     signInLoading: authState.signInLoading,
     signUpLoading: authState.signUpLoading,
     signOutLoading: authState.signOutLoading,
+    userRole: authState.userRole,
+    isAdmin: authState.isAdmin,
+    isCounselor: authState.isCounselor,
     signUp,
     signIn,
     signOut,

@@ -46,9 +46,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import UserManagement from "@/components/UserManagement";
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, isAdmin, userRole, loading: authLoading } = useAuth();
   const {
     appointmentTrends,
     appointmentStatus,
@@ -130,6 +131,26 @@ const AdminDashboard = () => {
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-20 flex items-center justify-center min-h-screen">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Loading...</CardTitle>
+              <CardDescription>
+                Checking authentication status...
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user is signed in
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
@@ -142,6 +163,31 @@ const AdminDashboard = () => {
                 Please sign in to access the admin dashboard.
               </CardDescription>
             </CardHeader>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user has admin role
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-20 flex items-center justify-center min-h-screen">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Insufficient Permissions</CardTitle>
+              <CardDescription>
+                You need administrator privileges to access this dashboard.
+                Your current role: {userRole || 'student'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                If you believe this is an error, please contact the system administrator.
+              </p>
+            </CardContent>
           </Card>
         </div>
       </div>
@@ -239,7 +285,7 @@ const AdminDashboard = () => {
 
           {/* Charts and Analytics */}
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="assessments">Assessments</TabsTrigger>
               <TabsTrigger value="appointments">Appointments</TabsTrigger>
@@ -249,6 +295,7 @@ const AdminDashboard = () => {
               </TabsTrigger>
               <TabsTrigger value="moderation">Moderation</TabsTrigger>
               <TabsTrigger value="crisis">Crisis Monitoring</TabsTrigger>
+              <TabsTrigger value="users">User Management</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -624,6 +671,11 @@ const AdminDashboard = () => {
                   // TODO: Implement assignment handler
                 }}
               />
+            </TabsContent>
+
+            {/* User Management Tab */}
+            <TabsContent value="users">
+              <UserManagement />
             </TabsContent>
           </Tabs>
         </div>

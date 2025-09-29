@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, Shield, Eye, EyeOff, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
   const [email, setEmail] = useState("");
@@ -24,9 +24,12 @@ const AuthPage = () => {
   const [displayName, setDisplayName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  const [redirecting, setRedirecting] = useState(false);
 
   const { signUp, signIn, signUpLoading, signInLoading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,13 +52,41 @@ const AuthPage = () => {
       return;
     }
 
-    await signUp(email, password, isAnonymous ? "Anonymous User" : displayName);
+    const result = await signUp(email, password, isAnonymous ? "Anonymous User" : displayName);
+    
+    if (result.success) {
+      // Show additional toast to make sure verification message is visible
+      toast({
+        title: "Account Created Successfully! 🎉",
+        description: "Please check your email to verify your account before signing in.",
+        variant: "default",
+      });
+      
+      // Redirect to sign-in tab after short delay
+      setTimeout(() => {
+        setActiveTab('signin');
+        // Clear form fields
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        setDisplayName("");
+        setIsAnonymous(false);
+      }, 2500);
+    }
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await signIn(email, password);
+    const result = await signIn(email, password);
+    
+    if (result.success) {
+      setRedirecting(true);
+      // Redirect to chat interface (main user area)
+      setTimeout(() => {
+        navigate('/chat');
+      }, 1500);
+    }
   };
 
   return (
@@ -74,6 +105,15 @@ const AuthPage = () => {
       </div>
 
       <div className="w-full max-w-md relative">
+        {/* Redirect overlay */}
+        {redirecting && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/90 rounded-lg">
+            <div className="p-6 rounded-xl shadow-lg bg-white flex flex-col items-center">
+              <span className="font-semibold mb-2">Redirecting to your safe space...</span>
+              <div className="animate-spin h-6 w-6 border-4 border-primary border-t-transparent rounded-full"></div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="text-center mb-8">
           <Link
@@ -96,7 +136,7 @@ const AuthPage = () => {
         </div>
 
         <Card className="glass shadow-wellness border-border/30">
-          <Tabs defaultValue="signin">
+          <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -161,7 +201,7 @@ const AuthPage = () => {
                   <Button
                     type="submit"
                     className="w-full bg-gradient-hero hover:opacity-90 shadow-soft"
-                    disabled={signInLoading}
+                    disabled={signInLoading || redirecting}
                   >
                     {signInLoading ? "Signing in..." : "Sign In"}
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -170,6 +210,12 @@ const AuthPage = () => {
                   <Button
                     variant="ghost"
                     className="text-sm text-muted-foreground"
+                    type="button"
+                    onClick={() => toast({ 
+                      title: "Coming Soon", 
+                      description: "Password recovery will be available soon.", 
+                      variant: "default" 
+                    })}
                   >
                     Forgot your password?
                   </Button>

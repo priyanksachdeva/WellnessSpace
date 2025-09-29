@@ -21,14 +21,13 @@ ALTER TABLE appointments DROP COLUMN IF EXISTS payment_status;
 -- Clear existing Western counselors and add Indian student-focused counselors
 DELETE FROM counselors;
 
-INSERT INTO counselors (id, name, specialization, specialties, contact_method, bio, languages, is_available, avatar_url, availability_schedule, created_at, updated_at) VALUES
-('cs-ananya-sharma', 'Dr. Ananya Sharma', 'School Counselor - Academic Stress & Anxiety', 
+INSERT INTO counselors (id, name, first_name, last_name, specialties, contact_method, bio, languages, is_active, availability_schedule, experience_years, rating, created_at, updated_at) VALUES
+('cs-ananya-sharma', 'Dr. Ananya Sharma', 'Ananya', 'Sharma', 
  ARRAY['Academic Stress', 'Board Exam Anxiety', 'Study Pressure', 'School Problems'],
  'video',
  'Specialized in helping school students with board exam stress, academic pressure, and anxiety disorders. Over 8 years experience with CBSE and state board students across India. Fluent in Hindi and English.',
  ARRAY['Hindi', 'English'], 
  true,
- 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face',
  jsonb_build_object(
    'monday', ARRAY['09:00-17:00'],
    'tuesday', ARRAY['10:00-18:00'],
@@ -36,15 +35,14 @@ INSERT INTO counselors (id, name, specialization, specialties, contact_method, b
    'thursday', ARRAY['10:00-18:00'],
    'friday', ARRAY['09:00-16:00']
  ),
- NOW(), NOW()),
+ 8, 4.8, NOW(), NOW()),
 
-('cs-rajesh-kumar', 'Dr. Rajesh Kumar', 'College Counselor - Career Guidance & Study Stress',
+('cs-rajesh-kumar', 'Dr. Rajesh Kumar', 'Rajesh', 'Kumar',
  ARRAY['Career Guidance', 'Study Stress', 'Academic Performance', 'Engineering Student Support'],
  'video',
  'Expert in helping college students with career confusion, study stress, and academic performance anxiety. Specialized in engineering and medical student mental health. 10+ years with Delhi University and IITs.',
  ARRAY['Hindi', 'English'],
  true,
- 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face',
  jsonb_build_object(
    'monday', ARRAY['10:00-18:00'],
    'tuesday', ARRAY['09:00-17:00'],
@@ -53,15 +51,14 @@ INSERT INTO counselors (id, name, specialization, specialties, contact_method, b
    'friday', ARRAY['10:00-16:00'],
    'saturday', ARRAY['10:00-14:00']
  ),
- NOW(), NOW()),
+ 10, 4.7, NOW(), NOW()),
 
-('cs-priya-nair', 'Dr. Priya Nair', 'Student Psychologist - Exam Anxiety & Peer Issues',
+('cs-priya-nair', 'Dr. Priya Nair', 'Priya', 'Nair',
  ARRAY['Exam Anxiety', 'Peer Pressure', 'Social Adjustment', 'South Indian Student Support'],
  'video',
  'Clinical psychologist specializing in exam anxiety, peer pressure, and social adjustment issues among students. Experienced with South Indian students and familiar with regional academic pressures.',
  ARRAY['Malayalam', 'English', 'Tamil'],
  true,
- 'https://images.unsplash.com/photo-1594824388187-6207095a1c25?w=400&h=400&fit=crop&crop=face',
  jsonb_build_object(
    'monday', ARRAY['08:00-16:00'],
    'tuesday', ARRAY['09:00-17:00'],
@@ -69,15 +66,14 @@ INSERT INTO counselors (id, name, specialization, specialties, contact_method, b
    'thursday', ARRAY['09:00-17:00'],
    'friday', ARRAY['08:00-15:00']
  ),
- NOW(), NOW()),
+ 7, 4.9, NOW(), NOW()),
 
-('cs-arjun-singh', 'Dr. Arjun Singh', 'Youth Counselor - Family Issues & Substance Prevention',
+('cs-arjun-singh', 'Dr. Arjun Singh', 'Arjun', 'Singh',
  ARRAY['Family Pressure', 'Substance Prevention', 'Cultural Identity', 'North Indian Student Support'],
  'video',
  'Specialized in helping students deal with family pressure, substance abuse prevention, and cultural identity issues. Experienced with North Indian student communities and family dynamics.',
  ARRAY['Punjabi', 'Hindi', 'English'],
  true,
- 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop&crop=face',
  jsonb_build_object(
    'tuesday', ARRAY['09:00-17:00'],
    'wednesday', ARRAY['10:00-18:00'],
@@ -85,15 +81,14 @@ INSERT INTO counselors (id, name, specialization, specialties, contact_method, b
    'friday', ARRAY['10:00-18:00'],
    'saturday', ARRAY['09:00-15:00']
  ),
- NOW(), NOW()),
+ 6, 4.6, NOW(), NOW()),
 
-('cs-meera-patel', 'Dr. Meera Patel', 'Student Counselor - Entrance Exam Stress & Performance',
+('cs-meera-patel', 'Dr. Meera Patel', 'Meera', 'Patel',
  ARRAY['JEE Stress', 'NEET Anxiety', 'Competitive Exams', 'Performance Anxiety', 'Study Burnout'],
  'video',
  'Expert in helping students with JEE, NEET, CAT and other competitive exam stress. Specialized in performance anxiety and study burnout. Gujarati and Hindi speaking counselor.',
  ARRAY['Gujarati', 'Hindi', 'English'],
  true,
- 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=400&h=400&fit=crop&crop=face',
  jsonb_build_object(
    'monday', ARRAY['09:00-17:00'],
    'wednesday', ARRAY['10:00-18:00'],
@@ -101,7 +96,7 @@ INSERT INTO counselors (id, name, specialization, specialties, contact_method, b
    'friday', ARRAY['10:00-18:00'],
    'saturday', ARRAY['10:00-16:00']
  ),
- NOW(), NOW());
+ 7, 4.7, NOW(), NOW());
 
 -- Clear existing resources and add Indian student-focused resources
 DELETE FROM resources;
