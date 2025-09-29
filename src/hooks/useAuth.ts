@@ -1,426 +1,306 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Session, AuthError } from "@supabase/supabase-js";
-import { useToast } from "@/hooks/use-toast";
+import type { Session, User } from "@supabase/supabase-js";
 
-// Development-only instrumentation
-const isDev = import.meta.env.DEV;
-const AUTH_TIMEOUT_MS = 10000; // 10 seconds timeout for dev
-
-const logAuthTiming = (operation: string, startTime: number) => {
-  if (!isDev) return;
-  const duration = Date.now() - startTime;
-  console.log(`[AUTH] ${operation} completed in ${duration}ms`);
-
-  if (duration > 5000) {
-    console.warn(`[AUTH] Slow ${operation} detected: ${duration}ms`);
-  }
-};
-
-const logAuthStart = (operation: string) => {
-  if (!isDev) return;
-  console.log(`[AUTH] ${operation} started`);
-  performance?.mark(`auth-${operation}-start`);
-  return Date.now();
-};
-
-const detectTimeout = (operation: string, onTimeout: () => void) => {
-  if (!isDev) return;
-
-  return setTimeout(() => {
-    console.error(
-      `[AUTH] Timeout detected for ${operation} after ${AUTH_TIMEOUT_MS}ms`
-    );
-    onTimeout();
-  }, AUTH_TIMEOUT_MS);
-};
-
-interface AuthState {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signInLoading: boolean;
-  signUpLoading: boolean;
-  signOutLoading: boolean;
-  userRole: string | null;
-  isAdmin: boolean;
-  isCounselor: boolean;
-}
-
-interface AuthResult {
+type AuthResult = {
   success: boolean;
-  error: AuthError | Error | null;
-}
+  error?: string;
+};
+
+const ADMIN_ROLES = ["admin", "super_admin"];
+
+const buildSiteOrigin = () => {
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin;
+  }
+  return import.meta.env.VITE_SITE_URL ?? "";
+};
+
+const buildRedirectUrl = (path = "/auth") => {
+  const origin = buildSiteOrigin();
+  if (!origin) return undefined;
+  return `${origin}${path}`;
+};
+
+const anonymousCredentials = () => {
+  const email = import.meta.env.VITE_ANON_USER_EMAIL as string | undefined;
+  const password = import.meta.env.VITE_ANON_USER_PASSWORD as
+    | string
+    | undefined;
+  if (!email || !password) {
+    return null;
+  }
+  return { email, password };
+};
 
 export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    session: null,
-    loading: true,
-    signInLoading: false,
-    signUpLoading: false,
-    signOutLoading: false,
-    userRole: null,
-    isAdmin: false,
-    isCounselor: false,
-  });
-  const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [signInLoading, setSignInLoading] = useState(false);
+  const [signUpLoading, setSignUpLoading] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const anonCreds = useMemo(() => anonymousCredentials(), []);
+
+  const handleProfileUpdate = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+
+      const role = (data as { role?: string | null } | null)?.role ?? null;
+      setUserRole(role);
+      setIsAdmin(role ? ADMIN_ROLES.includes(role) : false);
+    } catch (profileError) {
+      console.warn("Failed to load user profile role:", profileError);
+      setUserRole(null);
+      setIsAdmin(false);
+    }
+  }, []);
+
+  const applySession = useCallback(
+    (nextSession: Session | null) => {
+      setSession(nextSession);
+      const authUser = nextSession?.user ?? null;
+      setUser(authUser);
+      if (authUser) {
+        void handleProfileUpdate(authUser.id);
+      } else {
+        setUserRole(null);
+        setIsAdmin(false);
+      }
+    },
+    [handleProfileUpdate]
+  );
 
   useEffect(() => {
-    let retryTimeout: NodeJS.Timeout;
-    let timeoutGuard: NodeJS.Timeout;
+    let isMounted = true;
 
-    const initializeAuth = async (retryCount = 0) => {
-      const startTime = logAuthStart("Auth initialization");
-
+    const initializeSession = async () => {
       try {
-        // Development timeout guard
-        timeoutGuard = detectTimeout("Auth initialization", () => {
-          setAuthState((prev) => ({ ...prev, loading: false }));
-          toast({
-            title: "Connection Timeout",
-            description:
-              "Authentication is taking longer than expected. Please refresh the page.",
-            variant: "destructive",
-          });
-        });
-
-        // Set up auth state listener
         const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, session) => {
-          if (isDev) console.log(`[AUTH] State change event: ${event}`);
-
-          setAuthState((prev) => ({
-            ...prev,
-            session,
-            user: session?.user ?? null,
-            loading: false,
-          }));
-
-          // Sync user profile and get role when user signs in
-          if (event === "SIGNED_IN" && session?.user) {
-            await syncUserProfile(session.user);
-            await updateUserRole(session.user.id);
-          } else if (event === "SIGNED_OUT") {
-            // Clear role data on sign out
-            setAuthState((prev) => ({
-              ...prev,
-              userRole: null,
-              isAdmin: false,
-              isCounselor: false,
-            }));
-          }
-
-          if (timeoutGuard) clearTimeout(timeoutGuard);
-        });
-
-        // Get initial session with retry logic
-        const sessionStartTime = logAuthStart("Session retrieval");
-        const {
-          data: { session },
+          data: { session: initialSession },
           error,
         } = await supabase.auth.getSession();
 
-        logAuthTiming("Session retrieval", sessionStartTime);
+        if (!isMounted) return;
 
         if (error) {
-          console.error("Error getting session:", error);
-          if (retryCount < 3) {
-            if (isDev)
-              console.log(
-                `[AUTH] Retrying auth initialization (attempt ${
-                  retryCount + 1
-                }/3)`
-              );
-            retryTimeout = setTimeout(() => {
-              initializeAuth(retryCount + 1);
-            }, 1000 * Math.pow(2, retryCount)); // Exponential backoff
-            return;
-          }
+          console.error("Error retrieving session:", error);
         }
 
-        setAuthState((prev) => ({
-          ...prev,
-          session,
-          user: session?.user ?? null,
-          loading: false,
-        }));
-
-        logAuthTiming("Auth initialization", startTime);
-        if (timeoutGuard) clearTimeout(timeoutGuard);
-
-        return () => subscription?.unsubscribe();
-      } catch (error) {
-        console.error("Error initializing auth:", error);
-        setAuthState((prev) => ({ ...prev, loading: false }));
-        if (timeoutGuard) clearTimeout(timeoutGuard);
+        applySession(initialSession ?? null);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    const cleanup = initializeAuth();
+    void initializeSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, nextSession) => {
+      if (!isMounted) return;
+      applySession(nextSession ?? null);
+      setLoading(false);
+    });
 
     return () => {
-      if (retryTimeout) clearTimeout(retryTimeout);
-      if (timeoutGuard) clearTimeout(timeoutGuard);
-      cleanup?.then((unsub) => unsub?.());
+      isMounted = false;
+      subscription.unsubscribe();
     };
-  }, []);
+  }, [applySession]);
 
-  const updateUserRole = async (userId: string): Promise<void> => {
-    try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if (profile) {
-        // Check if role column exists, fallback to student if not
-        const role = (profile as any).role || "student";
-        setAuthState((prev) => ({
-          ...prev,
-          userRole: role,
-          isAdmin: role === "admin" || role === "super_admin",
-          isCounselor: role === "counselor",
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching user role:", error);
-      // Default to student role if there's an error
-      setAuthState((prev) => ({
-        ...prev,
-        userRole: "student",
-        isAdmin: false,
-        isCounselor: false,
-      }));
-    }
-  };
-
-  const syncUserProfile = async (user: User, retryCount = 0): Promise<void> => {
-    try {
-      // Check if profile exists
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (!existingProfile) {
-        // Create profile if it doesn't exist
-        const { error: profileError } = await supabase.from("profiles").insert({
-          user_id: user.id,
-          display_name: user.user_metadata?.display_name || "Anonymous User",
+  const signUp = useCallback(
+    async (
+      email: string,
+      password: string,
+      displayName?: string
+    ): Promise<AuthResult> => {
+      setSignUpLoading(true);
+      try {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: buildRedirectUrl("/auth"),
+            data: {
+              display_name: displayName || "Anonymous User",
+            },
+          },
         });
 
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-          if (retryCount < 2) {
-            setTimeout(() => syncUserProfile(user, retryCount + 1), 1000);
-          }
+        if (error) {
+          throw error;
         }
+
+        return {
+          success: true,
+        };
+      } catch (error: any) {
+        return {
+          success: false,
+          error:
+            error?.message ??
+            "We couldn't create your account. Please try again.",
+        };
+      } finally {
+        setSignUpLoading(false);
       }
-    } catch (error) {
-      console.error("Error syncing user profile:", error);
-    }
-  };
+    },
+    []
+  );
 
-  const signUp = async (
-    email: string,
-    password: string,
-    displayName?: string
-  ): Promise<AuthResult> => {
-    setAuthState((prev) => ({ ...prev, signUpLoading: true }));
+  const signIn = useCallback(
+    async (email: string, password: string): Promise<AuthResult> => {
+      setSignInLoading(true);
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
+        if (error) {
+          throw error;
+        }
+
+        if (data.user) {
+          await handleProfileUpdate(data.user.id);
+        }
+
+        return {
+          success: true,
+        };
+      } catch (error: any) {
+        return {
+          success: false,
+          error:
+            error?.message ??
+            "We couldn't sign you in. Please double-check your credentials.",
+        };
+      } finally {
+        setSignInLoading(false);
+      }
+    },
+    [handleProfileUpdate]
+  );
+
+  const signInWithGoogle = useCallback(async (): Promise<AuthResult> => {
+    setSignInLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            display_name: displayName || "Anonymous User",
+          redirectTo: buildRedirectUrl("/auth"),
+          queryParams: {
+            prompt: "consent",
+            access_type: "offline",
           },
         },
       });
 
       if (error) {
-        let errorMessage = "Failed to create account. Please try again.";
+        throw error;
+      }
 
-        if (error.message.includes("already registered")) {
-          errorMessage =
-            "This email is already registered. Try signing in instead.";
-        } else if (error.message.includes("invalid email")) {
-          errorMessage = "Please enter a valid email address.";
-        } else if (error.message.includes("password")) {
-          errorMessage = "Password must be at least 6 characters long.";
-        }
+      return {
+        success: true,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message ?? "Google sign-in failed. Please try again.",
+      };
+    } finally {
+      setSignInLoading(false);
+    }
+  }, []);
 
-        toast({
-          title: "Sign Up Error",
-          description: errorMessage,
-          variant: "destructive",
+  const signInAnonymously = useCallback(
+    async (captchaToken?: string | null): Promise<AuthResult> => {
+      if (!anonCreds) {
+        return {
+          success: false,
+          error:
+            "Anonymous access isn't configured yet. Please set VITE_ANON_USER_EMAIL and VITE_ANON_USER_PASSWORD in your environment.",
+        };
+      }
+
+      setSignInLoading(true);
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: anonCreds.email,
+          password: anonCreds.password,
         });
 
-        return { success: false, error };
-      }
-
-      toast({
-        title: "Account Created",
-        description: "Please check your email to verify your account.",
-      });
-
-      return { success: true, error: null };
-    } catch (error) {
-      const err = error as Error;
-      console.error("Sign up error:", err);
-
-      toast({
-        title: "Network Error",
-        description:
-          "Unable to create account. Please check your connection and try again.",
-        variant: "destructive",
-      });
-
-      return { success: false, error: err };
-    } finally {
-      setAuthState((prev) => ({ ...prev, signUpLoading: false }));
-    }
-  };
-
-  const signIn = async (
-    email: string,
-    password: string,
-    retryCount = 0
-  ): Promise<AuthResult> => {
-    const startTime = logAuthStart("Sign in");
-    setAuthState((prev) => ({ ...prev, signInLoading: true }));
-
-    // Development timeout guard
-    const timeoutGuard = detectTimeout("Sign in", () => {
-      setAuthState((prev) => ({ ...prev, signInLoading: false }));
-      toast({
-        title: "Sign In Timeout",
-        description:
-          "Sign in is taking longer than expected. Please try again.",
-        variant: "destructive",
-      });
-    });
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (timeoutGuard) clearTimeout(timeoutGuard);
-
-      if (error) {
-        let errorMessage = "Failed to sign in. Please check your credentials.";
-
-        if (error.message.includes("invalid_credentials")) {
-          errorMessage = "Invalid email or password. Please try again.";
-        } else if (error.message.includes("email_not_confirmed")) {
-          errorMessage =
-            "Please check your email and confirm your account first.";
-        } else if (error.message.includes("too_many_requests")) {
-          errorMessage = "Too many attempts. Please wait before trying again.";
+        if (error) {
+          throw error;
         }
 
-        toast({
-          title: "Sign In Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
+        if (data.user) {
+          await handleProfileUpdate(data.user.id);
+        }
 
-        return { success: false, error };
+        return {
+          success: true,
+        };
+      } catch (error: any) {
+        return {
+          success: false,
+          error:
+            error?.message ??
+            "Anonymous sign-in is currently unavailable. Please try again later.",
+        };
+      } finally {
+        setSignInLoading(false);
       }
+    },
+    [anonCreds, handleProfileUpdate]
+  );
 
-      logAuthTiming("Sign in", startTime);
-
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
-
-      return { success: true, error: null };
-    } catch (error) {
-      const err = error as Error;
-      console.error("Sign in error:", err);
-      if (timeoutGuard) clearTimeout(timeoutGuard);
-
-      // Retry logic for network errors
-      if (err.message.includes("network") && retryCount < 2) {
-        if (isDev)
-          console.log(`[AUTH] Retrying sign in (attempt ${retryCount + 1}/3)`);
-        setTimeout(() => signIn(email, password, retryCount + 1), 1000);
-        return { success: false, error: err };
-      }
-
-      toast({
-        title: "Connection Error",
-        description:
-          "Unable to sign in. Please check your connection and try again.",
-        variant: "destructive",
-      });
-
-      return { success: false, error: err };
-    } finally {
-      setAuthState((prev) => ({ ...prev, signInLoading: false }));
-    }
-  };
-
-  const signOut = async (): Promise<AuthResult> => {
-    setAuthState((prev) => ({ ...prev, signOutLoading: true }));
-
+  const signOut = useCallback(async (): Promise<AuthResult> => {
     try {
       const { error } = await supabase.auth.signOut();
-
       if (error) {
-        console.error("Sign out error:", error);
-        toast({
-          title: "Sign Out Error",
-          description: "Failed to sign out. Please try again.",
-          variant: "destructive",
-        });
-        return { success: false, error };
+        throw error;
       }
-
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
-
-      return { success: true, error: null };
-    } catch (error) {
-      const err = error as Error;
-      console.error("Sign out error:", err);
-
-      toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
-      });
-
-      return { success: false, error: err };
-    } finally {
-      setAuthState((prev) => ({ ...prev, signOutLoading: false }));
+      setUser(null);
+      setSession(null);
+      setUserRole(null);
+      setIsAdmin(false);
+      return {
+        success: true,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message ?? "Sign-out failed. Please try again.",
+      };
     }
-  };
+  }, []);
 
   return {
-    user: authState.user,
-    session: authState.session,
-    loading: authState.loading,
-    signInLoading: authState.signInLoading,
-    signUpLoading: authState.signUpLoading,
-    signOutLoading: authState.signOutLoading,
-    userRole: authState.userRole,
-    isAdmin: authState.isAdmin,
-    isCounselor: authState.isCounselor,
+    user,
+    session,
+    loading,
+    signInLoading,
+    signUpLoading,
+    userRole,
+    isAdmin,
     signUp,
     signIn,
+    signInWithGoogle,
+    signInAnonymously,
     signOut,
-    syncUserProfile,
   };
 };

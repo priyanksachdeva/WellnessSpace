@@ -7,12 +7,19 @@ BEGIN;
 ALTER TABLE public.profiles 
 ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'student';
 
--- Add constraint to ensure valid roles
-ALTER TABLE public.profiles 
-ADD CONSTRAINT profiles_role_check 
-CHECK (role IN ('student', 'counselor', 'admin', 'super_admin'));
-
--- Create index on role for better query performance
+-- Add constraint to ensure valid roles (if not exists)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'profiles_role_check' 
+        AND conrelid = 'public.profiles'::regclass
+    ) THEN
+        ALTER TABLE public.profiles
+        ADD CONSTRAINT profiles_role_check
+        CHECK (role IN ('student', 'counselor', 'admin', 'super_admin'));
+    END IF;
+END $$;-- Create index on role for better query performance
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
 
 -- Update existing profiles to have student role (default)

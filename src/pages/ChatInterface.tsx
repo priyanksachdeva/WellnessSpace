@@ -65,7 +65,7 @@ const ChatInterface = () => {
   const [loadingConversations, setLoadingConversations] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const { activeAlert, showAlert, dismissAlert } = useCrisisAlert();
 
@@ -422,6 +422,21 @@ const ChatInterface = () => {
   const handleQuickResponse = (response: string) => {
     sendMessage(response);
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-wellness flex items-center justify-center">
+        <Card className="p-8 text-center">
+          <CardContent>
+            <LoadingSpinner size="lg" />
+            <p className="text-muted-foreground mt-4">
+              Loading your session...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
