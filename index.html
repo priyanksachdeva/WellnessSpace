@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -37,8 +36,13 @@
       name="twitter:image"
       content="https://lovable.dev/opengraph-image-p98pqg.png"
     />
+  </head>
 
-    <!-- Botpress Chatbot Scripts in Head -->
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Botpress Chatbot Integration -->
     <script
       src="https://cdn.botpress.cloud/webchat/v3.3/inject.js"
       defer
@@ -47,15 +51,6 @@
       src="https://files.bpcontent.cloud/2025/09/29/05/20250929054130-O3MVTL53.js"
       defer
     ></script>
-  </head>
-
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-
-    <!-- Botpress Chatbot Integration -->
-    <script src="https://cdn.botpress.cloud/webchat/v3.3/inject.js"></script>
-    <script src="https://files.bpcontent.cloud/2025/09/27/17/20250927173242-32D39YNH.js"></script>
 
     <!-- Botpress Initialization -->
     <script>

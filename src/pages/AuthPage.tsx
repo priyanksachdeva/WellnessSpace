@@ -105,9 +105,9 @@ const AuthPage = () => {
 
     if (result.success) {
       setRedirecting(true);
-      // Redirect to chat interface (main user area)
+      // Redirect to main landing page
       setTimeout(() => {
-        navigate("/chat");
+        navigate("/");
       }, 1500);
     } else if (result.error) {
       toast({
@@ -154,9 +154,9 @@ const AuthPage = () => {
       recaptchaRef.current?.reset();
       setCaptchaToken(null);
 
-      // Redirect to chat interface
+      // Redirect to main landing page
       setTimeout(() => {
-        navigate("/chat");
+        navigate("/");
       }, 1500);
     } else {
       // Reset captcha on error
