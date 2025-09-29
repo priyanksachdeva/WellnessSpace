@@ -202,16 +202,16 @@ supabase functions serve # Serve edge functions locally
 
 ### Environment Variables
 
-| Variable                        | Description                                         | Required | Notes |
-| ------------------------------- | --------------------------------------------------- | -------- | ----- |
-| `VITE_SUPABASE_URL`             | Supabase project URL                                | ✅       | Matches the project configured in the dashboard |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (anon)                     | ✅       | Use the key from the same project as above |
-| `VITE_SUPABASE_PROJECT_ID`      | Supabase project reference ID                       | ✅       | Required for Supabase CLI commands |
-| `GEMINI_API_KEY`                | Google Gemini API key for Edge Functions            | ✅       | Store as a Supabase secret for server usage |
-| `VITE_RECAPTCHA_SITE_KEY`       | Google reCAPTCHA v2 site key                        | ⚠️       | Required when enabling anonymous sign-in |
-| `VITE_SITE_URL`                 | Fallback origin for auth redirects                  | ⚠️       | Defaults to `window.location.origin` if omitted |
-| `VITE_ANON_USER_EMAIL`          | Supabase email for dedicated guest account          | Optional | Needed only if anonymous sign-in is offered |
-| `VITE_ANON_USER_PASSWORD`       | Password for the guest account above                | Optional | Keep short-lived and rotate regularly |
+| Variable                        | Description                                | Required | Notes                                           |
+| ------------------------------- | ------------------------------------------ | -------- | ----------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Supabase project URL                       | ✅       | Matches the project configured in the dashboard |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (anon)            | ✅       | Use the key from the same project as above      |
+| `VITE_SUPABASE_PROJECT_ID`      | Supabase project reference ID              | ✅       | Required for Supabase CLI commands              |
+| `GEMINI_API_KEY`                | Google Gemini API key for Edge Functions   | ✅       | Store as a Supabase secret for server usage     |
+| `VITE_RECAPTCHA_SITE_KEY`       | Google reCAPTCHA v2 site key               | ⚠️       | Required when enabling anonymous sign-in        |
+| `VITE_SITE_URL`                 | Fallback origin for auth redirects         | ⚠️       | Defaults to `window.location.origin` if omitted |
+| `VITE_ANON_USER_EMAIL`          | Supabase email for dedicated guest account | Optional | Needed only if anonymous sign-in is offered     |
+| `VITE_ANON_USER_PASSWORD`       | Password for the guest account above       | Optional | Keep short-lived and rotate regularly           |
 
 #### Supabase Dashboard Configuration
 

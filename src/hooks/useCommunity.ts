@@ -71,9 +71,7 @@ export const useCommunity = () => {
         }
 
         if (user) {
-          query = query.or(
-            `is_moderated.eq.true,user_id.eq.${user.id}`
-          );
+          query = query.or(`is_moderated.eq.true,user_id.eq.${user.id}`);
         } else {
           query = query.eq("is_moderated", true);
         }
