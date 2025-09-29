@@ -177,12 +177,12 @@ export const useAuth = () => {
 
       if (profile) {
         // Check if role column exists, fallback to student if not
-        const role = (profile as any).role || 'student';
+        const role = (profile as any).role || "student";
         setAuthState((prev) => ({
           ...prev,
           userRole: role,
-          isAdmin: role === 'admin' || role === 'super_admin',
-          isCounselor: role === 'counselor',
+          isAdmin: role === "admin" || role === "super_admin",
+          isCounselor: role === "counselor",
         }));
       }
     } catch (error) {
@@ -190,7 +190,7 @@ export const useAuth = () => {
       // Default to student role if there's an error
       setAuthState((prev) => ({
         ...prev,
-        userRole: 'student',
+        userRole: "student",
         isAdmin: false,
         isCounselor: false,
       }));

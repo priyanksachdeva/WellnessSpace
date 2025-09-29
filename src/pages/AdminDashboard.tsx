@@ -179,13 +179,14 @@ const AdminDashboard = () => {
             <CardHeader>
               <CardTitle>Insufficient Permissions</CardTitle>
               <CardDescription>
-                You need administrator privileges to access this dashboard.
-                Your current role: {userRole || 'student'}
+                You need administrator privileges to access this dashboard. Your
+                current role: {userRole || "student"}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                If you believe this is an error, please contact the system administrator.
+                If you believe this is an error, please contact the system
+                administrator.
               </p>
             </CardContent>
           </Card>

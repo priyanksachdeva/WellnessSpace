@@ -1,11 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { UserPlus, Users } from "lucide-react";
@@ -20,7 +39,12 @@ interface UserProfile {
 const UserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newUser, setNewUser] = useState({ email: '', password: '', role: 'student', displayName: '' });
+  const [newUser, setNewUser] = useState({
+    email: "",
+    password: "",
+    role: "student",
+    displayName: "",
+  });
   const [creating, setCreating] = useState(false);
   const { toast } = useToast();
 
@@ -31,18 +55,18 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setUsers(data || []);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to fetch users',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to fetch users",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -52,9 +76,9 @@ const UserManagement = () => {
   const createUser = async () => {
     if (!newUser.email || !newUser.password) {
       toast({
-        title: 'Error',
-        description: 'Email and password are required',
-        variant: 'destructive',
+        title: "Error",
+        description: "Email and password are required",
+        variant: "destructive",
       });
       return;
     }
@@ -62,30 +86,31 @@ const UserManagement = () => {
     setCreating(true);
     try {
       // Create user account using the admin API
-      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
-        email: newUser.email,
-        password: newUser.password,
-        email_confirm: true,
-      });
+      const { data: authUser, error: authError } =
+        await supabase.auth.admin.createUser({
+          email: newUser.email,
+          password: newUser.password,
+          email_confirm: true,
+        });
 
       if (authError) throw authError;
 
       toast({
-        title: 'Success',
+        title: "Success",
         description: `User ${newUser.email} created successfully! You'll need to update their role manually in the database.`,
       });
 
       // Reset form
-      setNewUser({ email: '', password: '', role: 'student', displayName: '' });
-      
+      setNewUser({ email: "", password: "", role: "student", displayName: "" });
+
       // Refresh user list
       fetchUsers();
     } catch (error: any) {
-      console.error('Error creating user:', error);
+      console.error("Error creating user:", error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create user',
-        variant: 'destructive',
+        title: "Error",
+        description: error.message || "Failed to create user",
+        variant: "destructive",
       });
     } finally {
       setCreating(false);
@@ -94,11 +119,16 @@ const UserManagement = () => {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'super_admin': return 'destructive';
-      case 'admin': return 'secondary';
-      case 'counselor': return 'default';
-      case 'student': return 'outline';
-      default: return 'outline';
+      case "super_admin":
+        return "destructive";
+      case "admin":
+        return "secondary";
+      case "counselor":
+        return "default";
+      case "student":
+        return "outline";
+      default:
+        return "outline";
     }
   };
 
@@ -112,7 +142,8 @@ const UserManagement = () => {
             Create New User
           </CardTitle>
           <CardDescription>
-            Create admin, counselor, or student accounts. After creation, you'll need to update roles manually in the database.
+            Create admin, counselor, or student accounts. After creation, you'll
+            need to update roles manually in the database.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -124,7 +155,9 @@ const UserManagement = () => {
                 type="email"
                 placeholder="user@example.com"
                 value={newUser.email}
-                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, email: e.target.value })
+                }
               />
             </div>
             <div>
@@ -133,7 +166,9 @@ const UserManagement = () => {
                 id="displayName"
                 placeholder="John Doe"
                 value={newUser.displayName}
-                onChange={(e) => setNewUser({ ...newUser, displayName: e.target.value })}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, displayName: e.target.value })
+                }
               />
             </div>
             <div>
@@ -143,12 +178,19 @@ const UserManagement = () => {
                 type="password"
                 placeholder="Minimum 6 characters"
                 value={newUser.password}
-                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, password: e.target.value })
+                }
               />
             </div>
             <div>
               <Label htmlFor="role">Intended Role</Label>
-              <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
+              <Select
+                value={newUser.role}
+                onValueChange={(value) =>
+                  setNewUser({ ...newUser, role: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -161,12 +203,12 @@ const UserManagement = () => {
               </Select>
             </div>
           </div>
-          <Button 
-            onClick={createUser} 
+          <Button
+            onClick={createUser}
             disabled={creating}
             className="w-full md:w-auto"
           >
-            {creating ? 'Creating...' : 'Create User'}
+            {creating ? "Creating..." : "Create User"}
           </Button>
         </CardContent>
       </Card>
@@ -179,7 +221,8 @@ const UserManagement = () => {
             Current Users
           </CardTitle>
           <CardDescription>
-            View all registered users. To assign roles, use the SQL commands provided below.
+            View all registered users. To assign roles, use the SQL commands
+            provided below.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -201,7 +244,7 @@ const UserManagement = () => {
                   {users.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
-                        {user.display_name || 'Anonymous User'}
+                        {user.display_name || "Anonymous User"}
                       </TableCell>
                       <TableCell className="font-mono text-xs">
                         {user.user_id}
@@ -213,12 +256,13 @@ const UserManagement = () => {
                   ))}
                 </TableBody>
               </Table>
-              
+
               {/* Instructions */}
               <div className="mt-6 p-4 bg-muted rounded-lg">
                 <h4 className="font-semibold mb-2">To Assign Admin Role:</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Copy a User ID from above and run this SQL in Supabase Dashboard → SQL Editor:
+                  Copy a User ID from above and run this SQL in Supabase
+                  Dashboard → SQL Editor:
                 </p>
                 <code className="text-xs bg-black text-green-400 p-2 rounded block">
                   {`-- First, add the role column if not exists

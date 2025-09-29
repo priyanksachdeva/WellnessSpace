@@ -24,7 +24,7 @@ const AuthPage = () => {
   const [displayName, setDisplayName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
   const [redirecting, setRedirecting] = useState(false);
 
   const { signUp, signIn, signUpLoading, signInLoading } = useAuth();
@@ -52,19 +52,24 @@ const AuthPage = () => {
       return;
     }
 
-    const result = await signUp(email, password, isAnonymous ? "Anonymous User" : displayName);
-    
+    const result = await signUp(
+      email,
+      password,
+      isAnonymous ? "Anonymous User" : displayName
+    );
+
     if (result.success) {
       // Show additional toast to make sure verification message is visible
       toast({
         title: "Account Created Successfully! 🎉",
-        description: "Please check your email to verify your account before signing in.",
+        description:
+          "Please check your email to verify your account before signing in.",
         variant: "default",
       });
-      
+
       // Redirect to sign-in tab after short delay
       setTimeout(() => {
-        setActiveTab('signin');
+        setActiveTab("signin");
         // Clear form fields
         setEmail("");
         setPassword("");
@@ -79,12 +84,12 @@ const AuthPage = () => {
     e.preventDefault();
 
     const result = await signIn(email, password);
-    
+
     if (result.success) {
       setRedirecting(true);
       // Redirect to chat interface (main user area)
       setTimeout(() => {
-        navigate('/chat');
+        navigate("/chat");
       }, 1500);
     }
   };
@@ -109,7 +114,9 @@ const AuthPage = () => {
         {redirecting && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/90 rounded-lg">
             <div className="p-6 rounded-xl shadow-lg bg-white flex flex-col items-center">
-              <span className="font-semibold mb-2">Redirecting to your safe space...</span>
+              <span className="font-semibold mb-2">
+                Redirecting to your safe space...
+              </span>
               <div className="animate-spin h-6 w-6 border-4 border-primary border-t-transparent rounded-full"></div>
             </div>
           </div>
@@ -136,7 +143,11 @@ const AuthPage = () => {
         </div>
 
         <Card className="glass shadow-wellness border-border/30">
-          <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="signin">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            defaultValue="signin"
+          >
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -211,11 +222,14 @@ const AuthPage = () => {
                     variant="ghost"
                     className="text-sm text-muted-foreground"
                     type="button"
-                    onClick={() => toast({ 
-                      title: "Coming Soon", 
-                      description: "Password recovery will be available soon.", 
-                      variant: "default" 
-                    })}
+                    onClick={() =>
+                      toast({
+                        title: "Coming Soon",
+                        description:
+                          "Password recovery will be available soon.",
+                        variant: "default",
+                      })
+                    }
                   >
                     Forgot your password?
                   </Button>
