@@ -27,7 +27,7 @@ Since the Gemini API is used in Supabase Edge Functions (server-side), the API k
 4. **Set the Gemini API Key as a secret**:
 
    ```bash
-   npx supabase secrets set GEMINI_API_KEY=AIzaSyDYG8mbywdefXjvf2fezRD7Fe1NRwoNzHs
+   npx supabase secrets set GEMINI_API_KEY=your_gemini_api_key
    ```
 
 5. **Verify the secret was set**:
@@ -41,7 +41,7 @@ Since the Gemini API is used in Supabase Edge Functions (server-side), the API k
 2. Navigate to **Settings** → **Edge Functions**
 3. Under **Secrets**, add:
    - **Name**: `GEMINI_API_KEY`
-   - **Value**: `AIzaSyDYG8mbywdefXjvf2fezRD7Fe1NRwoNzHs`
+   - **Value**: `your_gemini_api_key`
 
 ### Method 3: Using Supabase REST API
 
@@ -50,8 +50,8 @@ curl -X POST 'https://api.supabase.com/v1/projects/dpqgltdclemskpvwolpi/secrets'
 -H "Authorization: Bearer YOUR_SUPABASE_ACCESS_TOKEN" \
 -H "Content-Type: application/json" \
 -d '{
-  "name": "GEMINI_API_KEY",
-  "value": "AIzaSyDYG8mbywdefXjvf2fezRD7Fe1NRwoNzHs"
+   "name": "GEMINI_API_KEY",
+   "value": "your_gemini_api_key"
 }'
 ```
 

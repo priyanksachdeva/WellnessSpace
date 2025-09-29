@@ -63,12 +63,19 @@ export const useCommunity = () => {
         let query = supabase
           .from("community_posts_with_profiles")
           .select("*")
-          .eq("is_moderated", true)
           .order("created_at", { ascending: false })
           .limit(limit);
 
         if (category && category !== "all") {
           query = query.eq("category", category);
+        }
+
+        if (user) {
+          query = query.or(
+            `is_moderated.eq.true,user_id.eq.${user.id}`
+          );
+        } else {
+          query = query.eq("is_moderated", true);
         }
 
         const { data: posts, error } = await query;
@@ -117,7 +124,7 @@ export const useCommunity = () => {
         return [];
       }
     },
-    [toast]
+    [toast, user]
   );
 
   const fetchEvents = useCallback(

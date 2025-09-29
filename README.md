@@ -26,6 +26,7 @@ A comprehensive mental health support platform designed specifically for Indian 
 - **📱 Responsive Design**: Mobile-first PWA design
 - **🌐 Multi-language Ready**: Framework for Hindi and regional languages
 - **🛡️ Privacy-First**: Anonymous usage options and data protection
+- **💬 Botpress Webchat**: Embedded, configurable support assistant
 
 ## 🏗️ Architecture
 
@@ -89,6 +90,11 @@ A comprehensive mental health support platform designed specifically for Indian 
    VITE_SUPABASE_PROJECT_ID=your_project_id
    VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
    VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SITE_URL=http://localhost:8080
+   VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key # required for anonymous access
+   # Optional guest account credentials (create a dedicated Supabase user first)
+   VITE_ANON_USER_EMAIL=
+   VITE_ANON_USER_PASSWORD=
    GEMINI_API_KEY=your_gemini_api_key
    ```
 
@@ -112,6 +118,10 @@ A comprehensive mental health support platform designed specifically for Indian 
    ```
 
    Visit `http://localhost:8080` to see the application.
+
+6. **Configure Supabase Redirects**
+
+   In the Supabase dashboard, head to **Authentication → URL Configuration** and ensure your development (`http://localhost:8080`) and production URLs are present in the Redirect list. This prevents email sign-in flows from timing out and sends users back to the landing page after authentication.
 
 ## 📁 Project Structure
 
@@ -192,12 +202,33 @@ supabase functions serve # Serve edge functions locally
 
 ### Environment Variables
 
-| Variable                        | Description              | Required |
-| ------------------------------- | ------------------------ | -------- |
-| `VITE_SUPABASE_URL`             | Supabase project URL     | ✅       |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key | ✅       |
-| `VITE_SUPABASE_PROJECT_ID`      | Supabase project ID      | ✅       |
-| `GEMINI_API_KEY`                | Google Gemini API key    | ✅       |
+| Variable                        | Description                                         | Required | Notes |
+| ------------------------------- | --------------------------------------------------- | -------- | ----- |
+| `VITE_SUPABASE_URL`             | Supabase project URL                                | ✅       | Matches the project configured in the dashboard |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (anon)                     | ✅       | Use the key from the same project as above |
+| `VITE_SUPABASE_PROJECT_ID`      | Supabase project reference ID                       | ✅       | Required for Supabase CLI commands |
+| `GEMINI_API_KEY`                | Google Gemini API key for Edge Functions            | ✅       | Store as a Supabase secret for server usage |
+| `VITE_RECAPTCHA_SITE_KEY`       | Google reCAPTCHA v2 site key                        | ⚠️       | Required when enabling anonymous sign-in |
+| `VITE_SITE_URL`                 | Fallback origin for auth redirects                  | ⚠️       | Defaults to `window.location.origin` if omitted |
+| `VITE_ANON_USER_EMAIL`          | Supabase email for dedicated guest account          | Optional | Needed only if anonymous sign-in is offered |
+| `VITE_ANON_USER_PASSWORD`       | Password for the guest account above                | Optional | Keep short-lived and rotate regularly |
+
+#### Supabase Dashboard Configuration
+
+1. Navigate to **Authentication → URL Configuration** in your Supabase project.
+2. Set **Site URL** to your production domain (e.g., `https://your-app.com`).
+3. Add each environment to **Redirect URLs**, including:
+   - `http://localhost:8080`
+   - `https://your-app.com`
+   - Any staging domains you use
+4. If you support magic links or OAuth, ensure `/auth` is allowed on every domain above (this is where the app handles redirects).
+5. Re-run a sign-in flow to confirm Supabase returns users to the correct URL.
+
+#### Botpress Webchat
+
+- The Botpress embed lives in `index.html` under the “Botpress Chatbot Integration” comment block.
+- Replace the hosted script URL with your own Botpress deployment ID if you fork this project.
+- Because the script loads client-side, verify consent requirements in your region before enabling it in production.
 
 ### Database Schema
 

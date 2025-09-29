@@ -79,12 +79,19 @@ export const useCommunityInteractions = (): UseCommunityInteractionsReturn => {
         let query = supabase
           .from("community_posts_with_profiles")
           .select("*")
-          .eq("is_moderated", true)
           .order("created_at", { ascending: false })
           .limit(limit);
 
-        if (category) {
+        if (category && category !== "all") {
           query = query.eq("category", category);
+        }
+
+        if (user) {
+          query = query.or(
+            `is_moderated.eq.true,user_id.eq.${user.id}`
+          );
+        } else {
+          query = query.eq("is_moderated", true);
         }
 
         const { data: postsData, error: postsError } = await query;
@@ -348,8 +355,6 @@ export const useCommunityInteractions = (): UseCommunityInteractionsReturn => {
           .insert(voteData);
 
         if (insertError) throw insertError;
-
-        if (error) throw error;
 
         // Update local state optimistically
         if (targetType === "post") {
